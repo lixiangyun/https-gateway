@@ -1,0 +1,146 @@
+<div class="layui-fluid">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 10px;">
+        <legend>系统状态</legend>
+    </fieldset>
+
+    <div class="layui-col-sm6 layui-col-md3 " >
+        <div class="layui-card " style="background: #e2e2e2">
+            <div class="layui-card-header">今日访问量</div>
+            <div class="layui-card-body">
+                <p id="today-request-cnt" style="font-size: 30px; height: 40px"></p>
+                <p>总计访问量
+                    <span id="total-request-cnt" class="layuiadmin-span-color"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-sm6 layui-col-md3">
+        <div class="layui-card" style="background: #e2e2e2; margin-left: 15px">
+            <div class="layui-card-header">
+                今日数据流量
+            </div>
+            <div class="layui-card-body">
+                <p id="today-flow-size" style="font-size: 30px; height: 40px"></p>
+                <p>总数据流量
+                    <span id="total-flow-size" class="layuiadmin-span-color"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-sm6 layui-col-md3">
+        <div class="layui-card" style="background: #e2e2e2; margin-left: 15px">
+            <div class="layui-card-header">
+                资源使用率
+            </div>
+            <div class="layui-card-body">
+                <p id="service-used-rate" style="font-size: 30px; height: 40px"></p>
+                <p> 服务数量
+                    <span id="service-number" class="layuiadmin-span-color"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-sm6 layui-col-md3">
+        <div class="layui-card" style="background: #e2e2e2; margin-left: 15px">
+            <div class="layui-card-header">
+                当前活跃用户
+            </div>
+            <div class="layui-card-body">
+                <p id="today-alive-users" style="font-size: 30px; height: 40px"></p>
+                <p>
+                    用户总数
+                    <span id="total-users" class="layuiadmin-span-color"> </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="layui-fluid" style="margin-top: 160px">
+    <div class="layui-col-sm6 layui-col-md3">
+        <div class="layui-card " style="background: #e2e2e2;">
+            <div class="layui-card-header">控制节点</div>
+            <div class="layui-card-body">
+                <h5 >CPU使用率</h5>
+                <div class="layui-progress layui-progress-big">
+                    <div id="ctrl-node-cpu1" class="layui-progress-bar" style="width: 0%;background: #5FB878">
+                        <span id="ctrl-node-cpu2" class="layui-progress-text">0%</span>
+                    </div>
+                </div>
+                <h5>内存占用率</h5>
+                <div class="layui-progress layui-progress-big">
+                    <div id="ctrl-node-memory1" class="layui-progress-bar" style="width: 0%;background: #5FB878">
+                        <span id="ctrl-node-memory2" class="layui-progress-text">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-sm6 layui-col-md3">
+        <div class="layui-card " style="background: #e2e2e2;margin-left: 15px">
+            <div class="layui-card-header">数据节点</div>
+            <div class="layui-card-body">
+                <h5 >CPU使用率</h5>
+                <div class="layui-progress layui-progress-big">
+                    <div id="data-node-cpu1" class="layui-progress-bar" style="width: 0%;background: #5FB878" >
+                        <span id="data-node-cpu2" class="layui-progress-text">0%</span>
+                    </div>
+                </div>
+                <h5>内存占用率</h5>
+                <div class="layui-progress layui-progress-big">
+                    <div id="data-node-memory1" class="layui-progress-bar" style="width: 0%;background: #5FB878">
+                        <span id="data-node-memory2" class="layui-progress-text">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-col-sm6 layui-col-md3">
+
+    </div>
+    <div class="layui-col-sm6 layui-col-md3">
+
+    </div>
+</div>
+
+<script>
+    function consoleupdate(name,value) {
+        document.getElementById(name).innerHTML = value;
+    }
+
+    function updaterate(id, rate) {
+        if (rate >= 90) {
+            document.getElementById(id+"1").style.background = "red";
+        }else if (rate >= 50) {
+            document.getElementById(id + "1").style.background = "#eb7350";
+        }else {
+            document.getElementById(id+"1").style.background = "#5FB878";
+        }
+        document.getElementById(id+"1").style.width = String(rate)+"%";
+        document.getElementById(id+"2").innerHTML = String(rate) + "%";
+    }
+    function getconsole() {
+        layui.jquery.getJSON({
+            url: "console.json",
+            success: function (data,status,xhr) {
+                consoleupdate("today-request-cnt",data.today_request_cnt)
+                consoleupdate("total-request-cnt",data.total_request_cnt)
+                consoleupdate("today-flow-size",data.today_flow_size)
+                consoleupdate("total-flow-size",data.total_flow_size)
+                consoleupdate("service-used-rate",data.service_used_rate)
+                consoleupdate("service-number",data.service_number)
+                consoleupdate("today-alive-users",data.today_alive_users)
+                consoleupdate("total-users",data.total_users)
+
+                updaterate("ctrl-node-cpu",data.ctrl_node_cpu)
+                updaterate("ctrl-node-memory",data.ctrl_node_memory)
+                updaterate("data-node-cpu",data.data_node_cpu)
+                updaterate("data-node-memory",data.data_node_memory)
+            }
+        })
+    }
+    getconsole()
+
+
+
+</script>

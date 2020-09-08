@@ -1,0 +1,14 @@
+{
+	"code": 0,
+	"msg": "",
+	"count": 1,
+	"data": [{
+		"date": "2020-09-10",
+		"name": "server1",
+		"https": "443",
+		"domain": "www.autoproxy.top;autoproxy.top",
+		"http": "192.168.3.11:8080",
+		"redirect": "true",
+		"status": "normail"
+	}]
+}

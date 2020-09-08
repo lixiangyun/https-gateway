@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>HTTPS Gateway</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+</head>
+
+<body class="layui-layout-body" id="body-flag">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">
+            <a class="layui-logo" href="javascript:gotopage('console.html');">Gateway Console</a>
+        </div>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree" lay-filter="main-list">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">网关配置</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:gotopage('cert.html');">https证书管理</a></dd>
+                        <dd><a href="javascript:gotopage('nginx.html');">nginx代理设置</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="layui-body" id="main-body">
+    </div>
+    <div class="layui-footer">
+        <p>© 2020 <a href="https://www.easymesh.info/" target="_blank">easymesh.info</a>  易云尚云版权所有</p>
+    </div>
+</div>
+
+<script src="./layui/layui.all.js"></script>
+
+<script>
+    function gotopage(param) {
+        var div = document.getElementById("main-body");
+        layui.jquery.ajax({
+            type:'get',
+            url: param,//这里是baiurl
+            timeout:1000,
+            success:function(body,heads,stat){
+                div.innerHTML = body;
+                layui.jquery('#main-body').html(body);
+            }
+        });
+    }
+    gotopage("console.html")
+</script>
+
+</body>
+</html>
+</html>

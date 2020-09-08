@@ -1,0 +1,156 @@
+<div style="margin-top: 10px; margin-left: 10px; margin-right: 10px">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 10px;">
+        <legend>代理设置</legend>
+    </fieldset>
+    <table class="layui-table" lay-data="{height:400, url:'./nginx.json', page:true, id:'nginxtable'}" lay-filter="nginxdemo">
+        <thead>
+        <tr>
+            <th lay-data="{type:'checkbox', fixed: 'left'}"></th>
+            <th lay-data="{field:'date', width:120, sort: true, fixed: true}">日期</th>
+            <th lay-data="{field:'name', width:120}">服务名称</th>
+            <th lay-data="{field:'https', width:120, sort: true}">安全端口</th>
+            <th lay-data="{field:'http', minwidth:160}">后端地址</th>
+            <th lay-data="{field:'redirect', width:120}">重定向80端口</th>
+            <th lay-data="{field:'status', width:100, sort: true}">状态</th>
+            <th lay-data="{width:160, align:'center', toolbar: '#barDemo'}">操作</th>
+        </tr>
+        </thead>
+    </table>
+
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+
+    <div class="layui-btn-group" style="float: left">
+        <a href="javascript:proxyAdd();" class="layui-btn">添加代理</a>
+    </div>
+
+    <div class="layui-btn-group" style="float: left;margin-left: 10px; text-align: center">
+        <a href="javascript:gotopage('nginx.html');" class="layui-btn" style="margin-left: 15px">刷新</a>
+    </div>
+
+    <div id="proxyadddiv" hidden class="layui-row">
+        <form class="layui-form" lay-filter="proxyaddpage" style="margin-top: 10px" >
+            <div class="layui-form-item" >
+                <label class="layui-form-label" style="width: 100px;">服务名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" lay-verify="required" placeholder="请输入服务名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" >
+                <label class="layui-form-label" style="width: 100px;">前端https端口</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="number" lay-verify="required|number" placeholder="请输入端口" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 100px;">后端http地址</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="backend" lay-verify="required" autocomplete="off" placeholder="请输入后端地址" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 100px;">重定向80端口</label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="redirect" lay-skin="switch" lay-text="ON|OFF">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 100px;">邦定域名证书</label>
+                <div class="layui-input-inline">
+                    <select name="domain" lay-verify="required">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="layui-form-mid layui-word-aux"></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="./layui/layui.all.js"></script>
+<script src="./layui/public.js"></script>
+
+<script>
+    function requestProxyAdd(reqeust, success) {
+        publicPostJson("/proxy", reqeust, function(rsp) {
+            if (rsp.code == 0) {
+                displayWaitClose("添加代理成功");
+                success();
+            }else {
+                display("添加代理失败");
+            }
+        })
+    }
+
+    function proxyAdd() {
+        publicOpenForm("添加代理","proxyadddiv","proxyaddpage","500px","400px", function (data1) {
+            if ( data1.name.length < 3 || data1.name.length > 32 ) {
+                display("服务名称不合法，长度大于3字符，小于32字符");
+                return
+            }
+
+            if ( data1.number > 65535 || data1.number < 1 ) {
+                display("输入端口不合法");
+                return
+            }
+
+            if ( data1.backend == "" ) {
+                display("请输入后端地址");
+                return
+            }
+            requestProxyAdd(JSON.stringify(data1), function () {
+                publicPageReload("nginx.html");
+            })
+        })
+    }
+
+    layui.use('table', function(){
+        var table = layui.table;
+
+        //监听表格复选框选择
+        table.on('checkbox(nginxdemo)', function(obj){
+            console.log(obj)
+        });
+
+        //监听工具条
+        table.on('tool(nginxdemo)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'detail'){
+                layer.msg('ID：'+ data.id + ' 的查看操作');
+            } else if(obj.event === 'del'){
+                layer.confirm('真的删除行么', function(index){
+                    obj.del();
+                    layer.close(index);
+                });
+            } else if(obj.event === 'edit'){
+                layer.alert('编辑行：<br>'+ JSON.stringify(data))
+            }
+        });
+
+        var $ = layui.$, active = {
+            getCheckData: function(){ //获取选中数据
+                var checkStatus = table.checkStatus('nginxtable')
+                    ,data = checkStatus.data;
+                layer.alert(JSON.stringify(data));
+            }
+            ,getCheckLength: function(){ //获取选中数目
+                var checkStatus = table.checkStatus('nginxtable')
+                    ,data = checkStatus.data;
+                layer.msg('选中了：'+ data.length + ' 个');
+            }
+            ,isAll: function(){ //验证是否全选
+                var checkStatus = table.checkStatus('nginxtable');
+                layer.msg(checkStatus.isAll ? '全选': '未全选')
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+</script>

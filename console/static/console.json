@@ -1,0 +1,14 @@
+{
+	"today_request_cnt": 1234,
+	"total_request_cnt": 123456,
+	"today_flow_size": "1GB",
+	"total_flow_size": "1GB",
+	"service_used_rate": "50%",
+	"service_number" : "12/10",
+	"today_alive_users": 12,
+	"total_users" : 1000,
+	"ctrl_node_cpu" : 33,
+	"ctrl_node_memory" : 55,
+	"data_node_cpu" : 45,
+	"data_node_memory" : 90
+}

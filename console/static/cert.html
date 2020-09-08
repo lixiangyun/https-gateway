@@ -1,0 +1,134 @@
+<div style="margin-top: 10px; margin-left: 10px; margin-right: 10px">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 10px;">
+        <legend>证书管理</legend>
+    </fieldset>
+
+    <table class="layui-table" lay-data="{height:400, url:'./cert.json', page:true, id:'certtable'}" lay-filter="certdemo">
+        <thead>
+        <tr>
+            <th lay-data="{field:'date', width:120, sort: true, fixed: true}">添加时间</th>
+            <th lay-data="{field:'expire', width:120, sort: true}">过期时间</th>
+            <th lay-data="{field:'domain', minwidth:160}">邦定域名</th>
+            <th lay-data="{field:'email', width:160}">通知邮箱</th>
+            <th lay-data="{field:'next', width:120}">更新时间</th>
+            <th lay-data="{field:'status', width:80, sort: true}">状态</th>
+            <th lay-data="{width:160, align:'center', toolbar: '#barDemo'}">操作</th>
+        </tr>
+        </thead>
+    </table>
+
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+
+    <div class="layui-btn-group" style="float: left; text-align: center">
+        <a href="javascript:certadd();" class="layui-btn">添加证书</a>
+    </div>
+
+    <div class="layui-btn-group" style="float: left;margin-left: 10px; text-align: center">
+        <a href="javascript:gotopage('cert.html');" class="layui-btn" style="margin-left: 15px">刷新</a>
+    </div>
+
+    <div id="certadddiv" hidden class="layui-row">
+        <form class="layui-form" lay-filter="certaddpage" style="margin-top: 10px" >
+            <div class="layui-form-item" >
+                <label class="layui-form-label">Email</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="email" lay-verify="required" placeholder="邮箱" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" style="width: 300px">
+                <label class="layui-form-label">域名列表</label>
+                <div class="layui-input-block">
+                    <textarea name="domains" placeholder="一个或者多个域名，并按;分隔" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">更新策略</label>
+                <div class="layui-input-inline">
+                    <select name="update" lay-verify="required">
+                        <option value="auto">自动</option>
+                        <option value="manual">手动</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="./layui/layui.all.js"></script>
+<script src="./layui/public.js"></script>
+
+<script>
+    function requestAddCert(reqeust, success) {
+        publicPostJson("/cert", reqeust, function(rsp) {
+            if (rsp.code == 0) {
+                displayWaitClose("添加证书成功");
+                success();
+            }else {
+                display("添加证书失败");
+            }
+        })
+    }
+
+    function certadd() {
+        publicOpenForm("添加证书","certadddiv","certaddpage","400px","400px", function (data1) {
+            if ( data1.email.length == 0 ) {
+                display("请输入邮箱");
+                return
+            }
+            if (IsEmail(data1.email) == false) {
+                display("输入邮箱地址不合法");
+                return
+            }
+            if (data1.domains == "") {
+                display("请输入域名");
+                return
+            }
+            var domain = data1.domains.split(";")
+            var adddomain = [];
+            for (i = 0; i< domain.length; i++) {
+                if ( i != 0 && domain[i] == "" ) {
+                    continue
+                }
+                if ( IsDomain(domain[i]) == false) {
+                    display("输入域名不合法");
+                    return
+                }
+                adddomain.push(domain[i]);
+            }
+            var request = {email: data1.email, domains: adddomain, update: data1.update};
+
+            requestAddCert(JSON.stringify(request), function () {
+                publicPageReload("cert.html");
+            })
+        })
+    }
+
+    layui.use('table', function(){
+        var table = layui.table;
+        var $ = layui.$;
+
+        //监听工具条
+        table.on('tool(certdemo)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'detail'){
+                layer.msg('ID：'+ data.id + ' 的查看操作');
+            } else if(obj.event === 'del'){
+                layer.confirm('真的删除行么', function(index){
+                    obj.del();
+                    layer.close(index);
+                });
+            } else if(obj.event === 'edit'){
+                layer.alert('编辑行：<br>'+ JSON.stringify(data))
+            }
+        });
+
+        $('.proxydemo .layui-btn').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+</script>
