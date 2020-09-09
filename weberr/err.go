@@ -3,7 +3,7 @@ package weberr
 import (
 	"encoding/json"
 	"errors"
-	"github.com/lixiangyun/easymesh/util"
+	"github.com/lixiangyun/https-gateway/util"
 	"os"
 )
 
@@ -34,14 +34,18 @@ var (
 
 	WEB_ERR_PARAM         = PublicRsponse{Code: 1004, Message: "input param invalid"}
 	WEB_ERR_HTTPS_PORT    = PublicRsponse{Code: 1005, Message: "port has beed used"}
-	WEB_ERR_NOT_CERT      = PublicRsponse{Code: 1006, Message: "domain cert not exist"}
-	WEB_ERR_HAS_CERT      = PublicRsponse{Code: 1007, Message: "domain cert has been exist"}
-	WEB_ERR_BACKED_FAIL   = PublicRsponse{Code: 1008, Message: "backend http url invalid"}
+	WEB_ERR_BACKED_FAIL   = PublicRsponse{Code: 1006, Message: "backend http url invalid"}
 
-	WEB_ERR_NOT_PROXY      = PublicRsponse{Code: 2101, Message: "proxy no found"}
-	WEB_ERR_ADD_PROXY      = PublicRsponse{Code: 2102, Message: "add proxy fail"}
-	WEB_ERR_DEL_PROXY      = PublicRsponse{Code: 2103, Message: "delete proxy fail"}
-	WEB_ERR_UP_PROXY       = PublicRsponse{Code: 2104, Message: "update proxy fail"}
+	WEB_ERR_NOT_CERT      = PublicRsponse{Code: 1010, Message: "domain cert not exist"}
+	WEB_ERR_HAS_CERT      = PublicRsponse{Code: 1011, Message: "domain cert has been exist"}
+	WEB_ERR_ADD_CERT      = PublicRsponse{Code: 1012, Message: "add proxy fail"}
+	WEB_ERR_DEL_CERT      = PublicRsponse{Code: 1013, Message: "delete proxy fail"}
+	WEB_ERR_UP_CERT       = PublicRsponse{Code: 1014, Message: "update proxy fail"}
+
+	WEB_ERR_NOT_PROXY     = PublicRsponse{Code: 1020, Message: "proxy no found"}
+	WEB_ERR_ADD_PROXY     = PublicRsponse{Code: 1021, Message: "add proxy fail"}
+	WEB_ERR_DEL_PROXY     = PublicRsponse{Code: 1022, Message: "delete proxy fail"}
+	WEB_ERR_UP_PROXY      = PublicRsponse{Code: 1023, Message: "update proxy fail"}
 )
 
 func WebOK() string {

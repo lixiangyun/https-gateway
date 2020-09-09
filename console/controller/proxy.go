@@ -111,7 +111,7 @@ func ProxyInfoControllerAdd(ctx *context.Context)  {
 		return
 	}
 
-	u, err := url.Parse(req.Backend)
+	_, err = url.Parse(req.Backend)
 	if err != nil {
 		logs.Error("backend http address is invalid", err.Error())
 		werr = weberr.WebErrMake(weberr.WEB_ERR_BACKED_FAIL )

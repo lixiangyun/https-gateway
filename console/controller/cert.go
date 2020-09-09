@@ -1,7 +1,5 @@
 package controller
 
-
-
 import (
 	"encoding/json"
 	"fmt"
@@ -10,8 +8,8 @@ import (
 	"github.com/lixiangyun/https-gateway/console/data"
 	"github.com/lixiangyun/https-gateway/util"
 	"github.com/lixiangyun/https-gateway/weberr"
-	"net/url"
 	"strings"
+	"time"
 )
 
 type CertInfo struct {
@@ -113,26 +111,27 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 		}
 	}
 
+	var auto bool
+	if req.Auto == "auto" {
+		auto = true
+	}
 
+	// call certbot api
 
-	// call nginx check config and load
-
-	err = data.ProxyAdd(&data.ProxyInfo{
-		Name: req.Name,
-		HttpsPort: httpsPort,
-		Backend: req.Backend,
-		Cert: req.Domain,
-		Redirct: redirct,
-		Status: "running",
+	err = data.CertAdd(domains[0], &data.CertInfo{
+		Email: req.Email,
+		Domain: domains,
+		Auto: auto,
+		Date: time.Now(),
 	})
 
 	if err != nil {
-		logs.Error("add proxy fail, %s", err.Error())
+		logs.Error("add cert fail, %s", err.Error())
 		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_PROXY)
 		return
 	}
 
-	logs.Info("add proxy success!")
+	logs.Info("add cert success!")
 }
 
 type CertDelRequest struct {
