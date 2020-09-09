@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/astaxie/beego"
+	"github.com/lixiangyun/https-gateway/console/data"
 	"github.com/lixiangyun/https-gateway/util"
 )
 
@@ -12,6 +13,7 @@ var (
 
 	LogDir      string
 	HealthCheck string
+	Etcds       string
 
 	Address string
 	Port    int
@@ -23,6 +25,7 @@ func init()  {
 
 	flag.IntVar(&Port, "port", 18000, "port for listen")
 	flag.StringVar(&Address, "address", "0.0.0.0", "address for listen")
+	flag.StringVar(&Etcds, "etcds", "http://127.0.0.1:2379", "address for etcd server")
 
 	flag.BoolVar(&Debug, "debug",false,"enable debug")
 	flag.BoolVar(&Help,"help",false,"usage help")
@@ -57,6 +60,7 @@ func main()  {
 	}
 
 	util.HealthCheckInit(HealthCheck)
+	data.DataInit([]string{Etcds})
 
 	BeegoConfig()
 
