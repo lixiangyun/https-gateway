@@ -27,8 +27,8 @@ func proxyTableGet() etcdsdk.TableAPI {
 	return tab
 }
 
-func ProxyDelete(https int) error {
-	return proxyTableGet().Delete(fmt.Sprintf("%d", https))
+func ProxyDelete(https string) error {
+	return proxyTableGet().Delete(https)
 }
 
 func ProxyAdd(proxy * ProxyInfo) error {

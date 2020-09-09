@@ -15,6 +15,9 @@ type CertInfo struct {
 	Domain     []string
 	Expire     time.Time
 	Date       time.Time
+	Auto       bool
+	CertKey    string
+	CertFile   string
 }
 
 func CertTableGet() etcdsdk.TableAPI {

@@ -6,6 +6,13 @@ import (
 	"strings"
 )
 
+func Status(cnt int) string {
+	if cnt > 0 {
+		return "using"
+	}
+	return "unused"
+}
+
 func StringList(list []string) string {
 	var body string
 	for idx,v := range list {

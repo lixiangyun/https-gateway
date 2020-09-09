@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/astaxie/beego"
+	"github.com/lixiangyun/https-gateway/console/controller"
 	"github.com/lixiangyun/https-gateway/console/data"
 	"github.com/lixiangyun/https-gateway/util"
 )
@@ -66,15 +67,13 @@ func main()  {
 
 	beego.SetStaticPath("/", "static")
 
-	/*
-	beego.Post("/proxy", controller)
-	beego.Get("/proxy", controller)
-	beego.Delete("/proxy", controller)
+	beego.Post("/proxy", controller.ProxyInfoControllerAdd)
+	beego.Get("/proxy", controller.ProxyInfoControllerGet)
+	beego.Delete("/proxy", controller.ProxyInfoControllerDelete)
 
 	beego.Post("/cert", controller)
 	beego.Get("/cert", controller)
 	beego.Delete("/cert", controller)
-	 */
 
 	beego.Run()
 }
