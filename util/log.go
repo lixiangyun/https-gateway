@@ -8,6 +8,29 @@ import (
 	"os"
 )
 
+
+type LogChannel struct {
+	queue chan []byte
+}
+
+func (lc *LogChannel)Write(p []byte) (n int, err error) {
+	buf := make([]byte, len(p))
+	copy(buf, p)
+	lc.queue <- buf
+	return len(p), nil
+}
+
+func NewLogChannel() *LogChannel {
+	return &LogChannel{
+		queue: make(chan []byte, 1024),
+	}
+}
+
+func (lc *LogChannel)Listen() <- chan []byte {
+	return lc.queue
+}
+
+
 type logconfig struct {
 	Filename string  `json:"filename"`
 	Level    int     `json:"level"`
