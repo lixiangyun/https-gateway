@@ -6,7 +6,7 @@ var DBAPI etcdsdk.DBAPI
 var KvAPI etcdsdk.BaseAPI
 
 func DataInit(endpoints []string) error {
-	baseAPI, err := etcdsdk.ClientInit(5, endpoints )
+	baseAPI, err := etcdsdk.ClientInit(2, endpoints )
 	if err != nil {
 		return err
 	}

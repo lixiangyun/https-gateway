@@ -8,7 +8,6 @@ import (
 	"github.com/lixiangyun/https-gateway/console/data"
 	"github.com/lixiangyun/https-gateway/util"
 	"github.com/lixiangyun/https-gateway/weberr"
-	"strings"
 	"time"
 )
 
@@ -31,9 +30,9 @@ type CertInfoRsponse struct {
 
 func CertInfo2Console(info data.CertInfo) CertInfo {
 	return CertInfo{
-		Date: info.Date.Format("2006-01-02 15:04:05"),
-		Expire: info.Expire.Format("2006-01-02 15:04:05"),
-		Next: info.Expire.AddDate(0,-1,0).Format("2006-01-02 15:04:05"),
+		Date: info.Date.Format("2006-01-02"),
+		Expire: info.Expire.Format("2006-01-02"),
+		Next: info.Expire.AddDate(0,-1,0).Format("2006-01-02"),
 		Domains: util.StringList(info.Domain),
 		Email: info.Email,
 		Status: util.Status(info.Status),
@@ -69,7 +68,7 @@ func CertInfoControllerGet(ctx *context.Context)  {
 
 type CertAddRequest struct {
 	Email      string `json:"email"`
-	Domains    string `json:"domains"`
+	Domains  []string `json:"domains"`
 	Auto       string `json:"update"`
 }
 
@@ -95,14 +94,7 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 		return
 	}
 
-	domains := strings.Split(req.Domains, ";")
-	if len(domains) == 0 {
-		logs.Error("domain %s is invalid", req.Domains )
-		werr = weberr.WebErrMake(weberr.WEB_ERR_PARAM)
-		return
-	}
-
-	for _, v := range domains {
+	for _, v := range req.Domains {
 		cert, _ := data.CertQuery(v)
 		if cert != nil {
 			logs.Error("domain %s cert has been exist", v)
@@ -118,9 +110,9 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 
 	// call certbot api
 
-	err = data.CertAdd(domains[0], &data.CertInfo{
+	err = data.CertAdd(req.Domains[0], &data.CertInfo{
 		Email: req.Email,
-		Domain: domains,
+		Domain: req.Domains,
 		Auto: auto,
 		Date: time.Now(),
 	})
@@ -162,4 +154,30 @@ func CertInfoControllerDelete(ctx *context.Context)  {
 	}
 
 	logs.Info("delete cert %s success!", req.Domain)
+}
+
+type DomainInfoRsponse struct {
+	Code    int      `json:"code"`
+	Count   int      `json:"count"`
+	Message string   `json:"msg"`
+	Data    []string `json:"data"`
+}
+
+func DomainInfoControllerGet(ctx *context.Context)  {
+	instances, _ := data.CertQueryAll()
+
+	var rsp DomainInfoRsponse
+	rsp.Code = 0
+	rsp.Message = ""
+	rsp.Data = make([]string, 0)
+
+	for _,v := range instances {
+		if v.Domain != nil {
+			rsp.Data = append(rsp.Data, v.Domain...)
+		}
+	}
+	rsp.Count = len(rsp.Data)
+
+	result, _ := json.Marshal(&rsp)
+	ctx.WriteString(string(result))
 }

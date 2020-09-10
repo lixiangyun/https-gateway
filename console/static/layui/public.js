@@ -19,6 +19,11 @@ function IsDomain(str) {
     return reg.test(str)
 }
 
+function IsNumber(abc) {
+    var reg=/[0-9]{1,5}/
+    return reg.test(abc)
+}
+
 function _transferTable(list, curlist) {
     var data1 = [];
     var data2 = [];

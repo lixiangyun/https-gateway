@@ -35,7 +35,7 @@ func ProxyInfo2Console(info data.ProxyInfo) ProxyInfo {
 		Name: info.Name,
 		Status: info.Status,
 		Detail: fmt.Sprintf("Domain: %s", info.Cert),
-		Join: info.Date.Format("2006-01-02 15:04:05"),
+		Join: info.Date.Format("2006-01-02"),
 		Https: fmt.Sprintf("%d", info.HttpsPort),
 		Backend: info.Backend,
 		Redirect: fmt.Sprintf("%v", info.Redirct),
