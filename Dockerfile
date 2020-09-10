@@ -18,8 +18,9 @@ RUN apt update && apt install -y certbot
 
 WORKDIR /home/binary
 
-COPY --from=0 /gopath/src/github.com/lixiangyun/https-gateway/static ./static
 COPY --from=0 /gopath/src/github.com/lixiangyun/https-gateway/start.sh ./start.sh
+
+COPY --from=0 /gopath/src/github.com/lixiangyun/https-gateway/console/static ./static
 COPY --from=0 /gopath/src/github.com/lixiangyun/https-gateway/console/console ./console
 
 RUN chmod +x console stand-alone.sh
