@@ -23,7 +23,7 @@ COPY --from=0 /gopath/src/github.com/lixiangyun/https-gateway/start.sh ./start.s
 COPY --from=0 /gopath/src/github.com/lixiangyun/https-gateway/console/static ./static
 COPY --from=0 /gopath/src/github.com/lixiangyun/https-gateway/console/console ./console
 
-RUN chmod +x console stand-alone.sh
+RUN chmod +x console start.sh
 
 HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://127.0.0.1:18001/ || exit 1
 
