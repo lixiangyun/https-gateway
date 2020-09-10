@@ -29,4 +29,4 @@ HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://127.0.0.1:18001/ || ex
 
 EXPOSE 80 443 18000
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["start.sh"]
