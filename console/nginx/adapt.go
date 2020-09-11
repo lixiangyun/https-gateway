@@ -100,6 +100,14 @@ func NginxStop() error {
 	return fmt.Errorf("nginx stop fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
 }
 
+func NginxRunning() bool {
+	_, err := os.Stat(NGINX_PID)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func NginxStart() error {
 	cfg, err := filepath.Abs(NGINX_CONFIG_PATH)
 	if err != nil {

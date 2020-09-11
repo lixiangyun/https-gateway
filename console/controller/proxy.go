@@ -11,6 +11,7 @@ import (
 	"github.com/lixiangyun/https-gateway/weberr"
 	"net/url"
 	"os"
+	"time"
 )
 
 type ProxyInfo struct {
@@ -251,4 +252,15 @@ func NginxSync()  {
 	if err != nil {
 		logs.Warn("nginx sync fail", err.Error())
 	}
+}
+
+func NginxInit()  {
+	go func() {
+		for  {
+			if !nginx.NginxRunning() {
+				NginxSync()
+			}
+			time.Sleep(time.Minute)
+		}
+	}()
 }
