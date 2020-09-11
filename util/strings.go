@@ -3,7 +3,6 @@ package util
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 func Status(cnt int) string {
@@ -27,7 +26,7 @@ func StringList(list []string) string {
 
 func StringListIndex(list []string, find string) (int, bool) {
 	for idx, v := range list {
-		if -1 != strings.Index(v, find) {
+		if v == find {
 			return idx, true
 		}
 	}
