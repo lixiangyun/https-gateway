@@ -70,6 +70,8 @@ func main()  {
 	util.HealthCheckInit(HealthCheck)
 	data.DataInit([]string{Etcds})
 
+	controller.NginxInit()
+
 	BeegoConfig()
 
 	beego.SetStaticPath("/", "static")

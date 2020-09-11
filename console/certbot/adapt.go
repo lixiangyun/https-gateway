@@ -2,6 +2,7 @@ package certbot
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/https-gateway/proc"
@@ -22,8 +23,10 @@ func NewCert(domain string) (*Cert, error) {
 		logs.Error("load cert fail, %s", err.Error())
 		return nil, err
 	}
-	logs.Info("%s -> %s", tlscfg.Leaf.NotBefore.String(), tlscfg.Leaf.NotAfter.String())
-	return &Cert{CertFile: cert, CertKey: key, Expire: tlscfg.Leaf.NotAfter}, nil
+	value, _ := json.Marshal(tlscfg)
+	logs.Info("cert info: %s", string(value))
+
+	return &Cert{CertFile: cert, CertKey: key}, nil
 }
 
 func CertMake(domain []string, email string) (*Cert, error) {

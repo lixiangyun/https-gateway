@@ -231,3 +231,10 @@ func SyncProxyToNginx() error {
 		Proxy: items,
 	})
 }
+
+func NginxInit()  {
+	err := SyncProxyToNginx()
+	if err != nil {
+		logs.Warn("nginx init fail", err.Error())
+	}
+}
