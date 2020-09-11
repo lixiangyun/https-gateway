@@ -211,6 +211,23 @@ func ProxyInfoControllerDelete(ctx *context.Context)  {
 	logs.Info("delete proxy success!")
 }
 
+func ProxyInfoControllerUpdate(ctx *context.Context)  {
+	werr := weberr.WEB_ERR_OK
+	defer func() {
+		ctx.WriteString(weberr.WebErr(werr))
+	}()
+
+	err := SyncProxyToNginx()
+	if err != nil {
+		logs.Error("nginx sync fail", err.Error())
+		werr = weberr.WebErrMake(weberr.WEB_ERR_UP_PROXY)
+		werr.Message = err.Error()
+		return
+	}
+
+	logs.Info("reset proxy success!")
+}
+
 func SyncProxyToNginx() error {
 	proxy, err := data.ProxyQueryAll()
 	if err != nil {
