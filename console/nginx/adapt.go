@@ -27,7 +27,7 @@ type Config struct {
 const NGINX_CONFIG_TEMPLATE = "/home/binary/nginx.conf.template"
 const NGINX_CONFIG_PATH = "/home/binary/nginx.conf"
 const NGINX_CONFIG_TMP_PATH = "/home/binary/nginx.conf.tmp"
-const NGINX_PID = "/run/nginx.pid"
+const NGINX_PID = "/home/nginx.pid"
 
 func NginxConfig(ctx *Config) error {
 	_, err := os.Stat(NGINX_CONFIG_TMP_PATH)
