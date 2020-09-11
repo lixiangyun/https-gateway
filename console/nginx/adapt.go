@@ -24,6 +24,7 @@ type Config struct {
 	Proxy  []ProxyItem
 }
 
+const NGINX_CONFIG_TEMPLATE = "/home/binary/nginx.conf.template"
 const NGINX_CONFIG_PATH = "/home/binary/nginx.conf"
 const NGINX_CONFIG_TMP_PATH = "/home/binary/nginx.conf.tmp"
 const NGINX_PID = "/run/nginx.pid"
@@ -43,7 +44,7 @@ func NginxConfig(ctx *Config) error {
 	}
 	defer file.Close()
 
-	temp, err := template.ParseFiles("./nginx.conf.template")
+	temp, err := template.ParseFiles(NGINX_CONFIG_TEMPLATE)
 	if err != nil {
 		return err
 	}

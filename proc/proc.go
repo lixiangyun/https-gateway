@@ -52,8 +52,8 @@ func (c *Cmd)RunWithStdin(in string) int {
 func NewCmd(cmd string, args...string) *Cmd {
 	c := new(Cmd)
 	c.cmd = cmd
-	c.stderr = bytes.NewBuffer(make([]byte, 1024))
-	c.stdout = bytes.NewBuffer(make([]byte, 1024))
+	c.stderr = bytes.NewBuffer(make([]byte, 0, 1024))
+	c.stdout = bytes.NewBuffer(make([]byte, 0, 1024))
 	c.args = append(c.args, args...)
 	return c
 }
