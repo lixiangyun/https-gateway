@@ -165,7 +165,7 @@ func ProxyInfoControllerAdd(ctx *context.Context)  {
 
 	data.CertUsed(req.Domain,1)
 
-	SyncProxyToNginx()
+	NginxSync()
 
 	logs.Info("add proxy success!")
 }
@@ -205,7 +205,7 @@ func ProxyInfoControllerDelete(ctx *context.Context)  {
 
 	data.CertUsed(info.Cert,-1)
 
-	SyncProxyToNginx()
+	NginxSync()
 
 	logs.Info("delete proxy success!")
 }
@@ -246,9 +246,9 @@ func SyncProxyToNginx() error {
 	})
 }
 
-func NginxInit()  {
+func NginxSync()  {
 	err := SyncProxyToNginx()
 	if err != nil {
-		logs.Warn("nginx init fail", err.Error())
+		logs.Warn("nginx sync fail", err.Error())
 	}
 }

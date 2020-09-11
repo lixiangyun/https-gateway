@@ -70,7 +70,7 @@ func main()  {
 	util.HealthCheckInit(HealthCheck)
 	data.DataInit([]string{Etcds})
 
-	controller.NginxInit()
+	controller.NginxSync()
 
 	BeegoConfig()
 
