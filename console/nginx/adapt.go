@@ -121,15 +121,7 @@ func NginxStart() error {
 		return err
 	}
 
-	var flag []string
-	_, err = os.Stat(NGINX_PID)
-	if err == nil {
-		flag = []string{"-s", "reload", "-c", cfg}
-	} else {
-		flag = []string{"-c", cfg}
-	}
-
-	cmd := proc.NewCmd("nginx", flag...)
+	cmd := proc.NewCmd("nginx", "-s", "reload", "-c", cfg)
 	retcode := cmd.Run()
 	if retcode == 0 {
 		return nil
