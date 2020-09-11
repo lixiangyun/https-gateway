@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/context"
 	"github.com/astaxie/beego/logs"
+	"github.com/lixiangyun/https-gateway/console/certbot"
 	"github.com/lixiangyun/https-gateway/console/data"
 	"github.com/lixiangyun/https-gateway/util"
 	"github.com/lixiangyun/https-gateway/weberr"
@@ -108,18 +109,26 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 		auto = true
 	}
 
-	// call certbot api
+	cert, err := certbot.CertMake(req.Domains, req.Email)
+	if err != nil {
+		logs.Error("make cert fail, %s", err.Error())
+		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_CERT)
+		return
+	}
 
 	err = data.CertAdd(req.Domains[0], &data.CertInfo{
 		Email: req.Email,
 		Domain: req.Domains,
 		Auto: auto,
 		Date: time.Now(),
+		Expire: cert.Expire,
+		CertKey: cert.CertKey,
+		CertFile: cert.CertFile,
 	})
 
 	if err != nil {
 		logs.Error("add cert fail, %s", err.Error())
-		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_PROXY)
+		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_CERT)
 		return
 	}
 
