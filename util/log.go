@@ -30,7 +30,6 @@ func (lc *LogChannel)Listen() <- chan []byte {
 	return lc.queue
 }
 
-
 type logconfig struct {
 	Filename string  `json:"filename"`
 	Level    int     `json:"level"`
@@ -51,6 +50,7 @@ func LogInit(dir string, filename string)  {
 	if err != nil {
 		panic(err.Error())
 	}
+
 	logs.Async()
 	err = logs.SetLogger(logs.AdapterFile, string(value))
 	if err != nil {
