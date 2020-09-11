@@ -7,6 +7,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/https-gateway/console/certbot"
 	"github.com/lixiangyun/https-gateway/console/data"
+	"github.com/lixiangyun/https-gateway/console/nginx"
 	"github.com/lixiangyun/https-gateway/util"
 	"github.com/lixiangyun/https-gateway/weberr"
 	"time"
@@ -109,10 +110,17 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 		auto = true
 	}
 
+	err = nginx.NginxStop()
+	if err != nil {
+		logs.Error("nginx stop fail", err.Error())
+	}
+
 	cert, err := certbot.CertMake(req.Domains, req.Email)
+	nginx.NginxStart() // recover nginx running
+
 	if err != nil {
 		logs.Error("make cert fail, %s", err.Error())
-		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_CERT)
+		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_CERT, err.Error())
 		return
 	}
 
@@ -128,7 +136,7 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 
 	if err != nil {
 		logs.Error("add cert fail, %s", err.Error())
-		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_CERT)
+		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_CERT, err.Error())
 		return
 	}
 

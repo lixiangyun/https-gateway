@@ -24,16 +24,20 @@ type Config struct {
 	Proxy  []ProxyItem
 }
 
-func NginxConfig(name string, ctx *Config) (error) {
-	_, err := os.Stat(name)
+const NGINX_CONFIG_PATH = "/home/binary/nginx.conf"
+const NGINX_CONFIG_TMP_PATH = "/home/binary/nginx.conf.tmp"
+const NGINX_PID = "/run/nginx.pid"
+
+func NginxConfig(ctx *Config) error {
+	_, err := os.Stat(NGINX_CONFIG_TMP_PATH)
 	if err == nil {
-		err = os.Remove(name)
+		err = os.Remove(NGINX_CONFIG_TMP_PATH)
 		if err != nil {
 			return err
 		}
 	}
 
-	file, err := os.Create(name)
+	file, err := os.Create(NGINX_CONFIG_TMP_PATH)
 	if err != nil {
 		return err
 	}
@@ -50,10 +54,22 @@ func NginxConfig(name string, ctx *Config) (error) {
 		return err
 	}
 
-	return nil
+	err = nginxTest(NGINX_CONFIG_TMP_PATH)
+	if err != nil {
+		logs.Error("nginx test config fail", err.Error())
+		return err
+	}
+
+	err = os.Rename(NGINX_CONFIG_TMP_PATH, NGINX_CONFIG_PATH)
+	if err != nil {
+		logs.Error("rename config fail", err.Error())
+		return err
+	}
+
+	return NginxStart()
 }
 
-func NginxCheck(name string) error {
+func nginxTest(name string) error {
 	cfg, err := filepath.Abs(name)
 	if err != nil {
 		return err
@@ -68,17 +84,47 @@ func NginxCheck(name string) error {
 	return fmt.Errorf("nginx check fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
 }
 
-func NginxReload(name string) error {
-	cfg, err := filepath.Abs(name)
+func NginxStop() error {
+	_, err := os.Stat(NGINX_PID)
 	if err != nil {
-		return err
+		logs.Info("nginx has been stop")
+		return nil
 	}
 
-	cmd :=proc.NewCmd("nginx", "-s", "reload", "-c", cfg)
+	cmd := proc.NewCmd("nginx", "-s", "stop")
 	retcode := cmd.Run()
 	if retcode == 0 {
 		return nil
 	}
 
-	return fmt.Errorf("nginx reload fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
+	return fmt.Errorf("nginx stop fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
+}
+
+func NginxStart() error {
+	cfg, err := filepath.Abs(NGINX_CONFIG_PATH)
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Stat(cfg)
+	if err != nil {
+		logs.Error("nginx config not exist", cfg)
+		return err
+	}
+
+	var flag string
+	_, err = os.Stat(NGINX_PID)
+	if err == nil {
+		flag = "reload"
+	} else {
+		flag = "start"
+	}
+
+	cmd := proc.NewCmd("nginx", "-s", flag, "-c", cfg)
+	retcode := cmd.Run()
+	if retcode == 0 {
+		return nil
+	}
+
+	return fmt.Errorf("nginx start fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
 }

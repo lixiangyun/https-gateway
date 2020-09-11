@@ -46,6 +46,7 @@ var (
 	WEB_ERR_ADD_PROXY     = PublicRsponse{Code: 1021, Message: "add proxy fail"}
 	WEB_ERR_DEL_PROXY     = PublicRsponse{Code: 1022, Message: "delete proxy fail"}
 	WEB_ERR_UP_PROXY      = PublicRsponse{Code: 1023, Message: "update proxy fail"}
+	WEB_ERR_NG_PROXY      = PublicRsponse{Code: 1024, Message: "sync proxy to nginx fail"}
 )
 
 func WebOK() string {

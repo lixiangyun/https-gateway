@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego/context"
 	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/https-gateway/console/data"
+	"github.com/lixiangyun/https-gateway/console/nginx"
 	"github.com/lixiangyun/https-gateway/util"
 	"github.com/lixiangyun/https-gateway/weberr"
 	"net/url"
@@ -139,8 +140,6 @@ func ProxyInfoControllerAdd(ctx *context.Context)  {
 		redirct = true
 	}
 
-	// call nginx check config and load
-
 	err = data.ProxyAdd(&data.ProxyInfo{
 		Name: req.Name,
 		HttpsPort: httpsPort,
@@ -153,6 +152,13 @@ func ProxyInfoControllerAdd(ctx *context.Context)  {
 	if err != nil {
 		logs.Error("add proxy fail, %s", err.Error())
 		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_PROXY)
+		return
+	}
+
+	err = SyncProxyToNginx()
+	if err != nil {
+		logs.Error("sync nginx fail, %s", err.Error())
+		werr = weberr.WebErrMake(weberr.WEB_ERR_NG_PROXY)
 		return
 	}
 
@@ -187,4 +193,34 @@ func ProxyInfoControllerDelete(ctx *context.Context)  {
 	}
 
 	logs.Info("delete proxy success!")
+}
+
+func SyncProxyToNginx() error {
+	proxy, err := data.ProxyQueryAll()
+	if err != nil {
+		return err
+	}
+
+	var items []nginx.ProxyItem
+	for _,v := range proxy {
+		cert, err := data.CertQuery(v.Cert)
+		if err != nil {
+			return err
+		}
+
+		items = append(items, nginx.ProxyItem{
+			Https: v.HttpsPort,
+			Name: v.Name,
+			CertFile: cert.CertFile,
+			CertKey: cert.CertKey,
+			Backend: v.Backend,
+			LogDir: fmt.Sprintf("/home/log/nginx/%s/", v.Name),
+		})
+	}
+
+	return nginx.NginxConfig(&nginx.Config{
+		Redirect: true,
+		LogDir: fmt.Sprintf("/home/log/nginx/"),
+		Proxy: items,
+	})
 }
