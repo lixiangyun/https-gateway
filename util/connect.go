@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"github.com/astaxie/beego/logs"
 	"net"
 	"strings"
 	"sync"
@@ -22,7 +23,6 @@ func ListenAndConnect(domain string, port int) error {
 
 	wait.Add(1)
 	go func() {
-		defer lis.Close()
 		defer wait.Done()
 		for {
 			if success || close {
@@ -45,17 +45,23 @@ func ListenAndConnect(domain string, port int) error {
 
 	go func() {
 		for i := 0; i < 5; i++ {
-			conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", domain, port))
+			if success {
+				break
+			}
+			conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", domain, port), time.Second)
 			if err != nil {
-				time.Sleep(time.Second)
+				logs.Warn("connect fail", err.Error())
 				continue
 			}
 			conn.Write([]byte(token))
 		}
 		close = true
+		lis.Close()
 	}()
 
 	wait.Wait()
+
+	time.Sleep(5*time.Second)
 
 	if success {
 		return nil
