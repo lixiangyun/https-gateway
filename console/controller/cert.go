@@ -20,6 +20,7 @@ type CertInfo struct {
 	Email     string `json:"email"`
 	Next      string `json:"next"`
 	Status  string `json:"status"`
+	Make    string `json:"make"`
 	Detail  string `json:"detail"`
 }
 
@@ -40,6 +41,7 @@ func CertInfo2Console(info data.CertInfo) CertInfo {
 		Status: util.Status(info.Status),
 		Detail: fmt.Sprintf("Cert: %s, Key:%s",
 			info.CertFile, info.CertKey),
+		Make: info.MakeInfo,
 	}
 }
 
@@ -120,21 +122,13 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 		auto = true
 	}
 
-	cert, err := certbot.CertMake(req.Domains, req.Email)
-	if err != nil {
-		logs.Error("make cert fail, %s", err.Error())
-		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_CERT, err.Error())
-		return
-	}
-
-	err = data.CertAdd(req.Domains[0], &data.CertInfo{
+	err = data.CertAdd(&data.CertInfo{
 		Email: req.Email,
 		Domain: req.Domains,
+		Expire: time.Now(),
 		Auto: auto,
 		Date: time.Now(),
-		Expire: cert.Expire,
-		CertKey: cert.CertKey,
-		CertFile: cert.CertFile,
+		MakeInfo: "making",
 	})
 
 	if err != nil {
@@ -144,6 +138,28 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 	}
 
 	logs.Info("add cert success!")
+
+	go makeCert(req.Domains[0])
+}
+
+func makeCert(domain string) {
+	certinfo, err := data.CertQuery(domain)
+	if err != nil {
+		logs.Warn("cert query fail", err.Error())
+		return
+	}
+
+	cert, err := certbot.CertMake(certinfo.Domain, certinfo.Email)
+	if err != nil {
+		certinfo.MakeInfo = err.Error()
+	} else {
+		certinfo.CertKey = cert.CertKey
+		certinfo.CertFile = cert.CertFile
+		certinfo.Expire = cert.Expire
+		certinfo.MakeInfo = "success"
+	}
+
+	data.CertUpdate(certinfo)
 }
 
 type CertDelRequest struct {

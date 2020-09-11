@@ -2,6 +2,7 @@ package certbot
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/logs"
@@ -15,18 +16,31 @@ type Cert struct {
 	Expire   time.Time
 }
 
-func NewCert(domain string) (*Cert, error) {
+func NewCert(domain string, output string) (*Cert, error) {
 	key := fmt.Sprintf("/etc/letsencrypt/live/%s/privkey.pem", domain)
 	cert := fmt.Sprintf("/etc/letsencrypt/live/%s/fullchain.pem", domain)
+
 	tlscfg, err := tls.LoadX509KeyPair(cert, key)
 	if err != nil {
 		logs.Error("load cert fail, %s", err.Error())
 		return nil, err
 	}
-	value, _ := json.Marshal(tlscfg)
-	logs.Info("cert info: %s", string(value))
 
-	return &Cert{CertFile: cert, CertKey: key}, nil
+	certinfo, err := x509.ParseCertificate(tlscfg.Certificate[0])
+	if err != nil {
+		logs.Error("parse cert fail, %s", err.Error())
+		return nil, err
+	}
+
+	value, err := json.Marshal(certinfo)
+	if err != nil {
+		logs.Error("json marshal fail", err.Error())
+		return nil, err
+	}
+
+	logs.Info("x509 info: %s", string(value))
+
+	return &Cert{CertFile: cert, CertKey: key, Expire: certinfo.NotAfter}, nil
 }
 
 func CertMake(domain []string, email string) (*Cert, error) {
@@ -43,7 +57,7 @@ func CertMake(domain []string, email string) (*Cert, error) {
 	ret := cmd.RunWithStdin(input)
 
 	if ret == 0 {
-		return NewCert(domain[0])
+		return NewCert(domain[0], cmd.Stdout())
 	}
 	return nil, fmt.Errorf("return code %d, stdout:%s, stderr:%s",
 		ret, cmd.Stdout(), cmd.Stderr())

@@ -18,6 +18,7 @@ type CertInfo struct {
 	Auto       bool
 	CertKey    string
 	CertFile   string
+	MakeInfo   string
 }
 
 func CertTableGet() etcdsdk.TableAPI {
@@ -36,14 +37,35 @@ func CertDelete(domain []string) error {
 	return nil
 }
 
-func CertAdd(domain string, cert * CertInfo) error {
+func CertUsed(domain string, add int) error {
+	cert, err := CertQuery(domain)
+	if err != nil {
+		return err
+	}
+	cert.Status += add
+	return CertUpdate(cert)
+}
+
+func CertUpdate(cert * CertInfo) error {
+	value, err := json.Marshal(cert)
+	if err != nil {
+		logs.Error("route json marshal fail", err.Error())
+		return err
+	}
+	return CertTableGet().Update(cert.Domain[0], value)
+}
+
+func CertAdd(cert * CertInfo) error {
+	if len(cert.Domain) < 1 {
+		return fmt.Errorf("domain is null")
+	}
 	cert.Date = time.Now()
 	value, err := json.Marshal(cert)
 	if err != nil {
 		logs.Error("route json marshal fail", err.Error())
 		return err
 	}
-	return CertTableGet().Insert(domain, value)
+	return CertTableGet().Insert(cert.Domain[0], value)
 }
 
 func CertQuery(domain string) (*CertInfo, error) {

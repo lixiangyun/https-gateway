@@ -6,12 +6,13 @@
     <table class="layui-table" lay-data="{height:400, url:'./cert', page:true, id:'certtable'}" lay-filter="certdemo">
         <thead>
         <tr>
-            <th lay-data="{field:'date', width:120, sort: true, fixed: true}">添加时间</th>
+            <th lay-data="{field:'next', width:120, sort: true, fixed: true}">更新时间</th>
             <th lay-data="{field:'expire', width:120, sort: true}">过期时间</th>
-            <th lay-data="{field:'domain', minwidth:160}">邦定域名</th>
-            <th lay-data="{field:'email', width:160}">通知邮箱</th>
-            <th lay-data="{field:'next', width:120}">更新时间</th>
-            <th lay-data="{field:'status', width:80, sort: true}">状态</th>
+            <th lay-data="{field:'domain', width:300}">签发域名</th>
+            <th lay-data="{field:'email', width:160}">邮箱</th>
+            <th lay-data="{field:'status', width:120, sort: true}">使用状态</th>
+            <th lay-data="{field:'make', width:120}">颁发状态</th>
+            <th lay-data="{field:'detail', minwidth:160}">详情</th>
             <th lay-data="{width:160, align:'center', toolbar: '#barDemo'}">操作</th>
         </tr>
         </thead>
