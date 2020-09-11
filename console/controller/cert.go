@@ -96,11 +96,21 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 		return
 	}
 
+	nginx.NginxStop()
+	defer nginx.NginxStart()
+
 	for _, v := range req.Domains {
 		cert, _ := data.CertQuery(v)
 		if cert != nil {
 			logs.Error("domain %s cert has been exist", v)
 			werr = weberr.WebErrMake(weberr.WEB_ERR_HAS_CERT)
+			return
+		}
+
+		err = util.ListenAndConnect(v, 80)
+		if err != nil {
+			logs.Error("domain %s connect fail", v )
+			werr = weberr.WebErrMake(weberr.WEB_ERR_PARAM)
 			return
 		}
 	}
@@ -110,14 +120,7 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 		auto = true
 	}
 
-	err = nginx.NginxStop()
-	if err != nil {
-		logs.Error("nginx stop fail", err.Error())
-	}
-
 	cert, err := certbot.CertMake(req.Domains, req.Email)
-	nginx.NginxStart() // recover nginx running
-
 	if err != nil {
 		logs.Error("make cert fail, %s", err.Error())
 		werr = weberr.WebErrMake(weberr.WEB_ERR_ADD_CERT, err.Error())

@@ -106,6 +106,13 @@ func ProxyInfoControllerAdd(ctx *context.Context)  {
 		return
 	}
 
+	err = util.CheckPortFree(httpsPort)
+	if err != nil {
+		logs.Error("https port %d has been used", httpsPort)
+		werr = weberr.WebErrMake(weberr.WEB_ERR_HTTPS_PORT)
+		return
+	}
+
 	if len(req.Name) < 3 || len(req.Name) > 32 {
 		logs.Error("proxy name %d invalid", len(req.Name) )
 		werr = weberr.WebErrMake(weberr.WEB_ERR_PARAM)

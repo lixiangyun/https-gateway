@@ -8,4 +8,4 @@ sleep 5
 mkdir -p /home/data/console
 mkdir -p /home/log/console
 
-./console -log /home/log/console -etcds http://localhost:18003 $*
+./console -log /home/log/console -etcds http://localhost:18003 -debug $*

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/https-gateway/console/controller"
 	"github.com/lixiangyun/https-gateway/console/data"
 	"github.com/lixiangyun/https-gateway/util"
@@ -58,6 +59,12 @@ func main()  {
 
 	if !Debug {
 		util.LogInit(LogDir,"console.log")
+	}
+
+	err := util.CheckPortFree(80)
+	if err != nil {
+		logs.Error("80 port been used")
+		return
 	}
 
 	util.HealthCheckInit(HealthCheck)
