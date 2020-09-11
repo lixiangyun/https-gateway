@@ -169,13 +169,10 @@ func updateCert(domain string) {
 		return
 	}
 
-	cert, err := certbot.CertMake(certinfo.Domain, certinfo.Email)
+	err = certbot.CertUpdate()
 	if err != nil {
 		certinfo.MakeInfo = err.Error()
 	} else {
-		certinfo.CertKey = cert.CertKey
-		certinfo.CertFile = cert.CertFile
-		certinfo.Expire = cert.Expire
 		certinfo.MakeInfo = "success"
 	}
 
@@ -249,9 +246,7 @@ func CertInfoControllerUpdate(ctx *context.Context)  {
 	}
 
 	cert.MakeInfo = "making"
-	cert.CertFile = ""
-	cert.CertKey = ""
-	cert.Expire = time.Now()
+	cert.Expire = time.Now().AddDate(0,3,0)
 
 	err = data.CertUpdate(cert)
 	if err != nil {

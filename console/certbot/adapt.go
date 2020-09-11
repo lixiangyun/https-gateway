@@ -37,10 +37,19 @@ func NewCert(domain string, output string) (*Cert, error) {
 		logs.Error("json marshal fail", err.Error())
 		return nil, err
 	}
-
 	logs.Info("x509 info: %s", string(value))
 
 	return &Cert{CertFile: cert, CertKey: key, Expire: certinfo.NotAfter}, nil
+}
+
+func CertUpdate() error {
+	cmd := proc.NewCmd("certbot", "renew")
+	ret := cmd.Run()
+	if ret == 0 {
+		return nil
+	}
+	return fmt.Errorf("certbot renew code %d, stdout:%s, stderr:%s",
+		ret, cmd.Stdout(), cmd.Stderr())
 }
 
 func CertMake(domain []string, email string) (*Cert, error) {
@@ -59,6 +68,6 @@ func CertMake(domain []string, email string) (*Cert, error) {
 	if ret == 0 {
 		return NewCert(domain[0], cmd.Stdout())
 	}
-	return nil, fmt.Errorf("return code %d, stdout:%s, stderr:%s",
+	return nil, fmt.Errorf("certbot make code %d, stdout:%s, stderr:%s",
 		ret, cmd.Stdout(), cmd.Stderr())
 }
