@@ -10,6 +10,7 @@ import (
 	"github.com/lixiangyun/https-gateway/util"
 	"github.com/lixiangyun/https-gateway/weberr"
 	"net/url"
+	"os"
 )
 
 type ProxyInfo struct {
@@ -232,19 +233,25 @@ func SyncProxyToNginx() error {
 			return err
 		}
 
+		logDirs := fmt.Sprintf("/home/log/nginx/%s", v.Name)
 		items = append(items, nginx.ProxyItem{
 			Https: v.HttpsPort,
 			Name: v.Name,
 			CertFile: cert.CertFile,
 			CertKey: cert.CertKey,
 			Backend: v.Backend,
-			LogDir: fmt.Sprintf("/home/log/nginx/%s/", v.Name),
+			LogDir: logDirs,
 		})
+
+		os.MkdirAll(logDirs, 0644)
 	}
+
+	pubDir := fmt.Sprintf("/home/log/nginx")
+	os.MkdirAll(pubDir, 0644)
 
 	return nginx.NginxConfig(&nginx.Config{
 		Redirect: true,
-		LogDir: fmt.Sprintf("/home/log/nginx/"),
+		LogDir: pubDir,
 		Proxy: items,
 	})
 }
