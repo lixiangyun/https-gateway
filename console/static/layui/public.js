@@ -153,7 +153,7 @@ function publicHttpJson(method, url, req, success ) {
         type: method,
         url: url,
         data: req,
-        timeout: 10000,
+        timeout: 30000,
         success:function(body,status){
             success(JSON.parse(body));
         },
@@ -183,7 +183,7 @@ function publicGetJsonReq(url, param, func ) {
     layui.jquery.getJSON({
         url: url,
         data: param,
-        timeout: 10000,
+        timeout: 30000,
         success: function (rsp,status,xhr) {
             func(rsp)
         },
@@ -198,7 +198,7 @@ function publicPageReload(param) {
     layui.jquery.ajax({
         type:'get',
         url: param,//这里是baiurl
-        timeout:10000,
+        timeout:30000,
         success:function(body,status){
             div.innerHTML = body;
             layui.jquery('#main-body').html(body);

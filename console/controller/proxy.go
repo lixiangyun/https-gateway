@@ -107,7 +107,7 @@ func ProxyInfoControllerAdd(ctx *context.Context)  {
 	}
 
 	err = util.CheckPortFree(httpsPort)
-	if err != nil {
+	if err == nil {
 		logs.Error("https port %d has been used", httpsPort)
 		werr = weberr.WebErrMake(weberr.WEB_ERR_HTTPS_PORT)
 		return
