@@ -85,6 +85,17 @@
         })
     }
 
+    function requestCertUpdate(reqeust, success) {
+        publicUpdateJson("/cert", reqeust, function(rsp) {
+            if (rsp.code == 0) {
+                displayWaitClose("更新证书成功");
+                success();
+            }else {
+                display("更新证书失败[" + rsp.msg + "]");
+            }
+        })
+    }
+
     function certadd() {
         publicOpenForm("添加证书","certadddiv","certaddpage","400px","400px", function (data1) {
             if ( data1.email.length == 0 ) {
@@ -126,8 +137,13 @@
         //监听工具条
         table.on('tool(certdemo)', function(obj){
             var data = obj.data;
-            if(obj.event === 'detail'){
-                layer.msg('ID：'+ data.id + ' 的查看操作');
+            if(obj.event === 'update'){
+                layer.confirm('真的更新['+ data.domain +']证书么', function(index){
+                    var domain = data.domain.split(";")
+                    requestCertUpdate(JSON.stringify({domain: domain[0]}), function () {
+                        layer.close(index);
+                    })
+                });
             } else if(obj.event === 'del'){
                 layer.confirm('真的删除['+ data.domain +']证书么', function(index){
                     var domain = data.domain.split(";")

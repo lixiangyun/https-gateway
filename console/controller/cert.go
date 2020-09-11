@@ -225,6 +225,46 @@ func CertInfoControllerDelete(ctx *context.Context)  {
 	logs.Info("delete cert %s success!", req.Domain)
 }
 
+func CertInfoControllerUpdate(ctx *context.Context)  {
+	var req CertDelRequest
+
+	werr := weberr.WEB_ERR_OK
+	defer func() {
+		ctx.WriteString(weberr.WebErr(werr))
+	}()
+
+	body := ctx.Input.RequestBody
+	err := json.Unmarshal(body, &req)
+	if err != nil {
+		logs.Error("json unmarshal fail", err.Error())
+		werr = weberr.WebErrMake(weberr.WEB_ERR_JSON_UCODER)
+		return
+	}
+
+	cert, err := data.CertQuery(req.Domain)
+	if err != nil {
+		logs.Error("cert %s not exist, %s", req.Domain, err.Error())
+		werr = weberr.WebErrMake(weberr.WEB_ERR_NOT_CERT)
+		return
+	}
+
+	cert.MakeInfo = "making"
+	cert.CertFile = ""
+	cert.CertKey = ""
+	cert.Expire = time.Now()
+
+	err = data.CertUpdate(cert)
+	if err != nil {
+		logs.Error("cert %s not exist, %s", req.Domain, err.Error())
+		werr = weberr.WebErrMake(weberr.WEB_ERR_NOT_CERT)
+		return
+	}
+
+	go updateCert(req.Domain)
+
+	logs.Info("update cert %s success!", req.Domain)
+}
+
 type DomainInfoRsponse struct {
 	Code    int      `json:"code"`
 	Count   int      `json:"count"`

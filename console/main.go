@@ -81,6 +81,7 @@ func main()  {
 	beego.Get("/proxy", controller.ProxyInfoControllerGet)
 	beego.Delete("/proxy", controller.ProxyInfoControllerDelete)
 
+	beego.Put("/cert", controller.CertInfoControllerUpdate)
 	beego.Post("/cert", controller.CertInfoControllerAdd)
 	beego.Get("/cert", controller.CertInfoControllerGet)
 	beego.Delete("/cert", controller.CertInfoControllerDelete)
