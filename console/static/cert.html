@@ -73,6 +73,17 @@
         })
     }
 
+    function requestCertDel(reqeust, success) {
+        publicDelJson("/cert", reqeust, function(rsp) {
+            if (rsp.code == 0) {
+                displayWaitClose("删除证书成功");
+                success();
+            }else {
+                display("删除证书失败[" + rsp.msg + "]");
+            }
+        })
+    }
+
     function certadd() {
         publicOpenForm("添加证书","certadddiv","certaddpage","400px","400px", function (data1) {
             if ( data1.email.length == 0 ) {
@@ -117,9 +128,12 @@
             if(obj.event === 'detail'){
                 layer.msg('ID：'+ data.id + ' 的查看操作');
             } else if(obj.event === 'del'){
-                layer.confirm('真的删除行么', function(index){
-                    obj.del();
-                    layer.close(index);
+                layer.confirm('真的删除['+ data.domain +']证书么', function(index){
+                    var domain = data.domain.split(";")
+                    requestCertDel(JSON.stringify({domain: domain[0]}), function () {
+                        obj.del();
+                        layer.close(index);
+                    })
                 });
             } else if(obj.event === 'edit'){
                 layer.alert('编辑行：<br>'+ JSON.stringify(data))

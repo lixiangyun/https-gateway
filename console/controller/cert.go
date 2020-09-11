@@ -166,6 +166,19 @@ func CertInfoControllerDelete(ctx *context.Context)  {
 		return
 	}
 
+	cert, err := data.CertQuery(req.Domain)
+	if err != nil {
+		logs.Error("cert %s not exist, %s", req.Domain, err.Error())
+		werr = weberr.WebErrMake(weberr.WEB_ERR_NOT_CERT)
+		return
+	}
+
+	if cert.Status > 0 {
+		logs.Error("cert %s using", req.Domain)
+		werr = weberr.WebErrMake(weberr.WEB_ERR_USED_CERT)
+		return
+	}
+
 	err = data.CertDelete([]string{req.Domain})
 	if err != nil {
 		logs.Error("cert %s not exist, %s", req.Domain, err.Error())

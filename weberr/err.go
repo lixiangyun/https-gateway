@@ -41,6 +41,7 @@ var (
 	WEB_ERR_ADD_CERT      = PublicRsponse{Code: 1012, Message: "add proxy fail"}
 	WEB_ERR_DEL_CERT      = PublicRsponse{Code: 1013, Message: "delete proxy fail"}
 	WEB_ERR_UP_CERT       = PublicRsponse{Code: 1014, Message: "update proxy fail"}
+	WEB_ERR_USED_CERT     = PublicRsponse{Code: 1015, Message: "cert using"}
 
 	WEB_ERR_NOT_PROXY     = PublicRsponse{Code: 1020, Message: "proxy no found"}
 	WEB_ERR_ADD_PROXY     = PublicRsponse{Code: 1021, Message: "add proxy fail"}

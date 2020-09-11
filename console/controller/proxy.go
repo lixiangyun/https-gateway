@@ -199,6 +199,13 @@ func ProxyInfoControllerDelete(ctx *context.Context)  {
 		return
 	}
 
+	err = SyncProxyToNginx()
+	if err != nil {
+		logs.Error("sync nginx fail, %s", err.Error())
+		werr = weberr.WebErrMake(weberr.WEB_ERR_NG_PROXY)
+		return
+	}
+
 	logs.Info("delete proxy success!")
 }
 
