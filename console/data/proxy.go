@@ -41,8 +41,8 @@ func ProxyAdd(proxy * ProxyInfo) error {
 	return proxyTableGet().Insert(fmt.Sprintf("%d", proxy.HttpsPort), value)
 }
 
-func ProxyQuery(https int) (*ProxyInfo, error) {
-	kv, err := proxyTableGet().QueryKey(fmt.Sprintf("%d", https))
+func ProxyQuery(https string) (*ProxyInfo, error) {
+	kv, err := proxyTableGet().QueryKey(https)
 	if err != nil {
 		return nil, err
 	}

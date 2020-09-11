@@ -162,6 +162,8 @@ func ProxyInfoControllerAdd(ctx *context.Context)  {
 		return
 	}
 
+	data.CertUsed(req.Domain,1)
+
 	err = SyncProxyToNginx()
 	if err != nil {
 		logs.Error("sync nginx fail, %s", err.Error())
@@ -192,12 +194,20 @@ func ProxyInfoControllerDelete(ctx *context.Context)  {
 		return
 	}
 
+	info, err := data.ProxyQuery(req.Https)
+	if err != nil {
+		logs.Error("proxy %s not exist, %s", req.Https, err.Error())
+		werr = weberr.WebErrMake(weberr.WEB_ERR_NG_PROXY)
+	}
+
 	err = data.ProxyDelete(req.Https)
 	if err != nil {
 		logs.Error("user register fail", err.Error())
 		werr = weberr.WebErrMake(weberr.WEB_ERR_DEL_PROXY)
 		return
 	}
+
+	data.CertUsed(info.Cert,-1)
 
 	err = SyncProxyToNginx()
 	if err != nil {

@@ -162,6 +162,26 @@ func makeCert(domain string) {
 	data.CertUpdate(certinfo)
 }
 
+func updateCert(domain string) {
+	certinfo, err := data.CertQuery(domain)
+	if err != nil {
+		logs.Warn("cert query fail", err.Error())
+		return
+	}
+
+	cert, err := certbot.CertMake(certinfo.Domain, certinfo.Email)
+	if err != nil {
+		certinfo.MakeInfo = err.Error()
+	} else {
+		certinfo.CertKey = cert.CertKey
+		certinfo.CertFile = cert.CertFile
+		certinfo.Expire = cert.Expire
+		certinfo.MakeInfo = "success"
+	}
+
+	data.CertUpdate(certinfo)
+}
+
 type CertDelRequest struct {
 	Domain string `json:"domain"`
 }
