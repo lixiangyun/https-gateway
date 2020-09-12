@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
-	"time"
 )
 
 type ProxyItem struct {
@@ -221,16 +220,7 @@ func NginxInit(home string) error {
 	if err != nil {
 		return err
 	}
-
-	go func() {
-		for  {
-			if !NginxRunning() {
-				NginxSync()
-			}
-			time.Sleep(time.Minute)
-		}
-	}()
-
+	
 	return nil
 }
 
