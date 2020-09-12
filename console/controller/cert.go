@@ -194,6 +194,8 @@ func updateCert() {
 		data.CertUpdate(&v)
 	}
 
+	logs.Info("cert async update success")
+
 	nginx.NginxSync()
 }
 
