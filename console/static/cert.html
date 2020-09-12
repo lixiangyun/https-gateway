@@ -66,6 +66,7 @@
 
 <script>
     function requestAddCert(reqeust, success) {
+        display("添加证书中")
         publicPostJson("/cert", reqeust, function(rsp) {
             if (rsp.code == 0) {
                 displayWaitClose("添加证书成功");
@@ -88,6 +89,7 @@
     }
 
     function requestCertUpdate(reqeust, success) {
+        display("更新证书中")
         publicUpdateJson("/cert", reqeust, function(rsp) {
             if (rsp.code == 0) {
                 displayWaitClose("更新证书成功");
