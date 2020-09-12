@@ -141,6 +141,8 @@ func NginxStart() error {
 		parms = []string{"-c", cfg}
 	}
 
+	logs.Info("nginx %v", parms)
+	
 	cmd := proc.NewCmd("nginx", parms...)
 	retcode := cmd.Run()
 	if retcode == 0 {
