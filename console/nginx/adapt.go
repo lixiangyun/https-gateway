@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
 )
@@ -113,7 +114,9 @@ func NginxRunning() bool {
 		logs.Warn("read nginx pid fail, %s", err.Error())
 		return false
 	}
-	pid, err := strconv.Atoi(string(body))
+	body2 := strings.ReplaceAll(string(body), "\r","")
+	body2 = strings.ReplaceAll(body2, "\n","")
+	pid, err := strconv.Atoi(body2)
 	if err != nil {
 		logs.Warn("[%s] atoi fail, %s", string(body), err.Error())
 		return false
