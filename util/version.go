@@ -3,7 +3,7 @@ package util
 import "github.com/astaxie/beego/logs"
 
 func VersionGet() string {
-	return "v0.1.0 20200909"
+	return "v0.2.0 20200912"
 }
 
 func init()  {
