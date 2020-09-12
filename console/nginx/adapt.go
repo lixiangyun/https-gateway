@@ -93,18 +93,20 @@ func nginxTest(name string) error {
 }
 
 func NginxStop() error {
-	if !NginxRunning() {
-		logs.Info("nginx has been stop")
-		return nil
+	for i := 0 ; i < 10; i++ {
+		if !NginxRunning() {
+			logs.Info("nginx been stop")
+			return nil
+		}
+		cmd := proc.NewCmd("nginx", "-s", "stop")
+		retcode := cmd.Run()
+		if retcode == 0 {
+			logs.Info("nginx stop success")
+			return nil
+		}
+		logs.Error("nginx stop fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
 	}
-
-	cmd := proc.NewCmd("nginx", "-s", "stop")
-	retcode := cmd.Run()
-	if retcode == 0 {
-		return nil
-	}
-
-	return fmt.Errorf("nginx stop fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
+	return fmt.Errorf("nginx stop fail")
 }
 
 func NginxRunning() bool {

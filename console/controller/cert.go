@@ -115,7 +115,7 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 
 		err = util.ListenAndConnect(v, 80)
 		if err != nil {
-			logs.Error("domain %s connect fail", v )
+			logs.Error("domain %s connect fail, %s", v, err.Error() )
 			werr = weberr.WebErrMake(weberr.WEB_ERR_PARAM)
 			return
 		}
@@ -147,6 +147,9 @@ func CertInfoControllerAdd(ctx *context.Context)  {
 }
 
 func makeCert(domain string) {
+	nginx.NginxStop()
+	defer nginx.NginxStart()
+
 	certinfo, err := data.CertQuery(domain)
 	if err != nil {
 		logs.Warn("cert query fail", err.Error())
@@ -168,6 +171,8 @@ func makeCert(domain string) {
 
 
 func updateCert() {
+	nginx.NginxStop()
+
 	certs, err := data.CertQueryAll()
 	if err != nil {
 		logs.Warn("cert query all fail", err.Error())

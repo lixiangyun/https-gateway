@@ -44,11 +44,11 @@ func ListenAndConnect(domain string, port int) error {
 	}()
 
 	go func() {
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 3; i++ {
 			if success {
 				break
 			}
-			conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", domain, port), time.Second)
+			conn, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%d", domain, port), 5 * time.Second)
 			if err != nil {
 				logs.Warn("connect fail", err.Error())
 				continue
