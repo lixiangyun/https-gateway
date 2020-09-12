@@ -166,6 +166,7 @@ func makeCert(domain string) {
 	data.CertUpdate(certinfo)
 }
 
+
 func updateCert() {
 	certs, err := data.CertQueryAll()
 	if err != nil {
@@ -277,4 +278,35 @@ func DomainInfoControllerGet(ctx *context.Context)  {
 
 	result, _ := json.Marshal(&rsp)
 	ctx.WriteString(string(result))
+}
+
+func init()  {
+	go func() {
+		logs.Info("cert auto update running")
+
+		for  {
+			time.Sleep(24*time.Hour)
+
+			certs, err := data.CertQueryAll()
+			if err != nil {
+				continue
+			}
+
+			now := time.Now()
+
+			for _, v := range certs {
+				next := v.Expire.AddDate(0,-1,0)
+
+				logs.Info("domain:%s now:%s, expite:%s, next:%s",
+					v.Domain[0],
+					now.String(), v.Expire.String(), next.String())
+
+				if now.After(next) == true {
+					logs.Info("cert auto update")
+					updateCert()
+					break
+				}
+			}
+		}
+	}()
 }
