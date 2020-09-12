@@ -6,8 +6,10 @@ import (
 	"github.com/lixiangyun/https-gateway/console/data"
 	"github.com/lixiangyun/https-gateway/proc"
 	"github.com/lixiangyun/https-gateway/util"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"text/template"
 	"time"
 )
@@ -81,7 +83,7 @@ func nginxTest(name string) error {
 		return err
 	}
 
-	cmd :=proc.NewCmd("nginx", "-t", "-c", cfg)
+	cmd := proc.NewCmd("nginx", "-t", "-c", cfg)
 	retcode := cmd.Run()
 	if retcode == 0 {
 		return nil
@@ -91,8 +93,7 @@ func nginxTest(name string) error {
 }
 
 func NginxStop() error {
-	_, err := os.Stat(NGINX_PID)
-	if err != nil {
+	if !NginxRunning() {
 		logs.Info("nginx has been stop")
 		return nil
 	}
@@ -107,11 +108,18 @@ func NginxStop() error {
 }
 
 func NginxRunning() bool {
-	_, err := os.Stat(NGINX_PID)
+	body, err := ioutil.ReadFile(NGINX_PID)
 	if err != nil {
 		return false
 	}
-	return true
+	pid, err := strconv.Atoi(string(body))
+	if err != nil {
+		return false
+	}
+	if pid > 0 && pid < 65535 {
+		return true
+	}
+	return false
 }
 
 func NginxStart() error {
@@ -126,7 +134,14 @@ func NginxStart() error {
 		return err
 	}
 
-	cmd := proc.NewCmd("nginx", "-s", "reload", "-c", cfg)
+	var parms []string
+	if NginxRunning() {
+		parms = []string{"-s", "reload", "-c", cfg}
+	} else {
+		parms = []string{"-c", cfg}
+	}
+
+	cmd := proc.NewCmd("nginx", parms...)
 	retcode := cmd.Run()
 	if retcode == 0 {
 		return nil
