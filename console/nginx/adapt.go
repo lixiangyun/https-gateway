@@ -85,10 +85,12 @@ func nginxTest(name string) error {
 	cmd := proc.NewCmd("nginx", "-t", "-c", cfg)
 	retcode := cmd.Run()
 	if retcode == 0 {
+		logs.Info("nginx check config success")
 		return nil
 	}
 
-	return fmt.Errorf("nginx check fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
+	logs.Error("nginx check fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
+	return fmt.Errorf("nginx check fail")
 }
 
 func NginxStop() error {
@@ -164,7 +166,6 @@ func SyncProxyToNginx() error {
 
 	var items []ProxyItem
 	for _,v := range proxy {
-
 		cert, err := data.CertQuery(v.Cert)
 		if err != nil {
 			return err
@@ -189,9 +190,14 @@ func SyncProxyToNginx() error {
 		})
 	}
 
+	var redirect bool
+	if len(items) > 0 {
+		redirect = true
+	}
+
 	return NginxConfig(&Config{
 		PIDFile: NGINX_PID,
-		Redirect: true,
+		Redirect: redirect,
 		LogDir: NGINX_HOME,
 		Proxy: items,
 	})
