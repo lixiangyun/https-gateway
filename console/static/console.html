@@ -5,11 +5,11 @@
 
     <div class="layui-col-sm6 layui-col-md3 " >
         <div class="layui-card " style="background: #e2e2e2">
-            <div class="layui-card-header">今日访问量</div>
+            <div class="layui-card-header">今日PV</div>
             <div class="layui-card-body">
-                <p id="today-request-cnt" style="font-size: 30px; height: 40px"></p>
-                <p>总计访问量
-                    <span id="total-request-cnt" class="layuiadmin-span-color"></span>
+                <p id="today-request" style="font-size: 45px; height: 60px"></p>
+                <p>总PV
+                    <span id="total-request" class="layuiadmin-span-color"></span>
                 </p>
             </div>
         </div>
@@ -17,91 +17,48 @@
     <div class="layui-col-sm6 layui-col-md3">
         <div class="layui-card" style="background: #e2e2e2; margin-left: 15px">
             <div class="layui-card-header">
-                今日数据流量
+                今日流量
             </div>
             <div class="layui-card-body">
-                <p id="today-flow-size" style="font-size: 30px; height: 40px"></p>
-                <p>总数据流量
-                    <span id="total-flow-size" class="layuiadmin-span-color"></span>
+                <p id="today-flow" style="font-size: 45px; height: 60px"></p>
+                <p>总流量
+                    <span id="total-flow" class="layuiadmin-span-color"></span>
                 </p>
             </div>
         </div>
     </div>
     <div class="layui-col-sm6 layui-col-md3">
         <div class="layui-card" style="background: #e2e2e2; margin-left: 15px">
-            <div class="layui-card-header">
-                资源使用率
-            </div>
+            <div class="layui-card-header">服务数量</div>
             <div class="layui-card-body">
-                <p id="service-used-rate" style="font-size: 30px; height: 40px"></p>
-                <p> 服务数量
-                    <span id="service-number" class="layuiadmin-span-color"></span>
+                <p id="proxy-number" style="font-size: 45px; height: 60px"></p>
+                <p> 证书数量
+                    <span id="cert-number" class="layuiadmin-span-color"></span>
                 </p>
-            </div>
-        </div>
-    </div>
-    <div class="layui-col-sm6 layui-col-md3">
-        <div class="layui-card" style="background: #e2e2e2; margin-left: 15px">
-            <div class="layui-card-header">
-                当前活跃用户
-            </div>
-            <div class="layui-card-body">
-                <p id="today-alive-users" style="font-size: 30px; height: 40px"></p>
-                <p>
-                    用户总数
-                    <span id="total-users" class="layuiadmin-span-color"> </span>
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="layui-fluid" style="margin-top: 160px">
-    <div class="layui-col-sm6 layui-col-md3">
-        <div class="layui-card " style="background: #e2e2e2;">
-            <div class="layui-card-header">控制节点</div>
-            <div class="layui-card-body">
-                <h5 >CPU使用率</h5>
-                <div class="layui-progress layui-progress-big">
-                    <div id="ctrl-node-cpu1" class="layui-progress-bar" style="width: 0%;background: #5FB878">
-                        <span id="ctrl-node-cpu2" class="layui-progress-text">0%</span>
-                    </div>
-                </div>
-                <h5>内存占用率</h5>
-                <div class="layui-progress layui-progress-big">
-                    <div id="ctrl-node-memory1" class="layui-progress-bar" style="width: 0%;background: #5FB878">
-                        <span id="ctrl-node-memory2" class="layui-progress-text">0%</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
     <div class="layui-col-sm6 layui-col-md3">
         <div class="layui-card " style="background: #e2e2e2;margin-left: 15px">
-            <div class="layui-card-header">数据节点</div>
+            <div class="layui-card-header">系统资源</div>
             <div class="layui-card-body">
-                <h5 >CPU使用率</h5>
+                <p >CPU使用率</p>
                 <div class="layui-progress layui-progress-big">
-                    <div id="data-node-cpu1" class="layui-progress-bar" style="width: 0%;background: #5FB878" >
-                        <span id="data-node-cpu2" class="layui-progress-text">0%</span>
+                    <div id="node-cpu1" class="layui-progress-bar" style="width: 0%;background: #5FB878" >
+                        <span id="node-cpu2" class="layui-progress-text">0%</span>
                     </div>
                 </div>
-                <h5>内存占用率</h5>
+                <p>内存占用率</p>
                 <div class="layui-progress layui-progress-big">
-                    <div id="data-node-memory1" class="layui-progress-bar" style="width: 0%;background: #5FB878">
-                        <span id="data-node-memory2" class="layui-progress-text">0%</span>
+                    <div id="node-memory1" class="layui-progress-bar" style="width: 0%;background: #5FB878">
+                        <span id="node-memory2" class="layui-progress-text">0%</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="layui-col-sm6 layui-col-md3">
-
-    </div>
-    <div class="layui-col-sm6 layui-col-md3">
-
-    </div>
 </div>
+
 
 <script>
     function consoleupdate(name,value) {
@@ -121,21 +78,16 @@
     }
     function getconsole() {
         layui.jquery.getJSON({
-            url: "console.json",
+            url: "console",
             success: function (data,status,xhr) {
-                consoleupdate("today-request-cnt",data.today_request_cnt)
-                consoleupdate("total-request-cnt",data.total_request_cnt)
-                consoleupdate("today-flow-size",data.today_flow_size)
-                consoleupdate("total-flow-size",data.total_flow_size)
-                consoleupdate("service-used-rate",data.service_used_rate)
-                consoleupdate("service-number",data.service_number)
-                consoleupdate("today-alive-users",data.today_alive_users)
-                consoleupdate("total-users",data.total_users)
-
-                updaterate("ctrl-node-cpu",data.ctrl_node_cpu)
-                updaterate("ctrl-node-memory",data.ctrl_node_memory)
-                updaterate("data-node-cpu",data.data_node_cpu)
-                updaterate("data-node-memory",data.data_node_memory)
+                consoleupdate("today-request",data.today_request)
+                consoleupdate("total-request",data.total_request)
+                consoleupdate("today-flow",data.today_flow)
+                consoleupdate("total-flow",data.total_flow)
+                consoleupdate("proxy-number",data.proxy_number)
+                consoleupdate("cert-number",data.cert_number)
+                updaterate("node-cpu",data.node_cpu)
+                updaterate("node-memory",data.node_memory)
             }
         })
     }

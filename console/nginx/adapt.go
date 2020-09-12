@@ -153,7 +153,6 @@ func NginxStart() error {
 	return fmt.Errorf("nginx start fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
 }
 
-
 func SyncProxyToNginx() error {
 	proxy, err := data.ProxyQueryAll()
 	if err != nil {
@@ -231,4 +230,20 @@ func NginxInit(home string) error {
 	}()
 
 	return nil
+}
+
+func AccessAllGet() []*Access {
+	proxy, err := data.ProxyQueryAll()
+	if err != nil {
+		return nil
+	}
+	var output []*Access
+	for _, v := range proxy {
+		access := ParseAccessFile(fmt.Sprintf("%s/%s/access.log", NGINX_HOME, v.Name))
+		if access != nil {
+			access.Name = v.Name
+			output = append(output, access)
+		}
+	}
+	return output
 }

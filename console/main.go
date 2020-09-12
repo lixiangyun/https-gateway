@@ -85,6 +85,8 @@ func main()  {
 	beego.SetStaticPath("/", "static")
 	beego.Get("/domain", controller.DomainInfoControllerGet)
 
+	beego.Get("/console", controller.ConsoleInfoControllerGet)
+
 	beego.Put("/proxy", controller.ProxyInfoControllerUpdate)
 	beego.Post("/proxy", controller.ProxyInfoControllerAdd)
 	beego.Get("/proxy", controller.ProxyInfoControllerGet)
