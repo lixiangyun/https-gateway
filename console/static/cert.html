@@ -19,13 +19,15 @@
     </table>
 
     <script type="text/html" id="barDemo">
-        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="edit">修改</a>
-        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="update">更新</a>
         <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
     </script>
 
     <div class="layui-btn-group" style="float: left; text-align: center">
         <a href="javascript:certadd();" class="layui-btn">添加证书</a>
+    </div>
+
+    <div class="layui-btn-group" style="float: left;margin-left: 10px; text-align: center">
+        <a href="javascript:certUpdate();" class="layui-btn layui-btn-danger" style="margin-left: 15px">更新证书</a>
     </div>
 
     <div class="layui-btn-group" style="float: left;margin-left: 10px; text-align: center">
@@ -128,6 +130,13 @@
                 publicPageReload("cert.html");
             })
         })
+    }
+
+    function certUpdate() {
+        layer.confirm('真的更新证书么', function(index){
+            requestCertUpdate(JSON.stringify({domain:""}), function () {
+            })
+        });
     }
 
     layui.use('table', function(){
