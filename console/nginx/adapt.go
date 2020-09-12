@@ -170,6 +170,7 @@ func SyncProxyToNginx() error {
 	}
 
 	return NginxConfig(&Config{
+		PIDFile: NGINX_PID,
 		Redirect: true,
 		LogDir: NGINX_HOME,
 		Proxy: items,
