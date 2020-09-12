@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -109,22 +108,19 @@ func NginxStop() error {
 }
 
 func NginxRunning() bool {
-	body, err := ioutil.ReadFile(NGINX_PID)
-	if err != nil {
-		logs.Warn("read nginx pid fail, %s", err.Error())
+	pid := util.LoadPidFile(NGINX_PID)
+	if pid == 0 {
 		return false
 	}
-	body2 := strings.ReplaceAll(string(body), "\r","")
-	body2 = strings.ReplaceAll(body2, "\n","")
-	pid, err := strconv.Atoi(body2)
+	body, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", pid))
 	if err != nil {
-		logs.Warn("[%s] atoi fail, %s", string(body), err.Error())
 		return false
 	}
-	if pid > 0 && pid < 65535 {
-		return true
+	idx := strings.Index(string(body), "nginx")
+	if idx == -1 {
+		return false
 	}
-	return false
+	return true
 }
 
 func NginxStart() error {
