@@ -110,10 +110,12 @@ func NginxStop() error {
 func NginxRunning() bool {
 	body, err := ioutil.ReadFile(NGINX_PID)
 	if err != nil {
+		logs.Warn("read nginx pid fail, %s", err.Error())
 		return false
 	}
 	pid, err := strconv.Atoi(string(body))
 	if err != nil {
+		logs.Warn("[%s] atoi fail, %s", string(body), err.Error())
 		return false
 	}
 	if pid > 0 && pid < 65535 {
@@ -142,7 +144,7 @@ func NginxStart() error {
 	}
 
 	logs.Info("nginx %v", parms)
-	
+
 	cmd := proc.NewCmd("nginx", parms...)
 	retcode := cmd.Run()
 	if retcode == 0 {
