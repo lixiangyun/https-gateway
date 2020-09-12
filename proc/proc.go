@@ -44,7 +44,7 @@ func (c *Cmd)RunWithStdin(in string) int {
 	cmd.Stdout = c.stdout
 	err := cmd.Run()
 	if err != nil {
-		logs.Warn("exec fail", err.Error())
+		logs.Warn("exec %s %v fail, %s", c.cmd, c.args, err.Error())
 	}
 	return cmd.ProcessState.ExitCode()
 }

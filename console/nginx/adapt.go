@@ -148,10 +148,12 @@ func NginxStart() error {
 	cmd := proc.NewCmd("nginx", parms...)
 	retcode := cmd.Run()
 	if retcode == 0 {
+		logs.Info("nginx start success!")
 		return nil
 	}
+	logs.Error("nginx start fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
 
-	return fmt.Errorf("nginx start fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
+	return fmt.Errorf("nginx start fail")
 }
 
 func SyncProxyToNginx() error {
