@@ -7,20 +7,30 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/https-gateway/proc"
+	"io/ioutil"
 	"time"
 )
 
 type Cert struct {
-	CertFile string
-	CertKey  string
-	Expire   time.Time
+	Cert    []byte
+	Key     []byte
+	Expire  time.Time
 }
 
-func NewCert(domain string, output string) (*Cert, error) {
-	key := fmt.Sprintf("/etc/letsencrypt/live/%s/privkey.pem", domain)
-	cert := fmt.Sprintf("/etc/letsencrypt/live/%s/fullchain.pem", domain)
+func NewCert(domain string) (*Cert, error) {
+	key, err := ioutil.ReadFile(fmt.Sprintf("/etc/letsencrypt/live/%s/privkey.pem", domain))
+	if err != nil {
+		logs.Error(err.Error())
+		return nil, err
+	}
 
-	tlscfg, err := tls.LoadX509KeyPair(cert, key)
+	cert, err := ioutil.ReadFile(fmt.Sprintf("/etc/letsencrypt/live/%s/fullchain.pem", domain))
+	if err != nil {
+		logs.Error(err.Error())
+		return nil, err
+	}
+
+	tlscfg, err := tls.X509KeyPair(cert, key)
 	if err != nil {
 		logs.Error("load cert fail, %s", err.Error())
 		return nil, err
@@ -39,7 +49,7 @@ func NewCert(domain string, output string) (*Cert, error) {
 	}
 	logs.Info("x509 info: %s", string(value))
 
-	return &Cert{CertFile: cert, CertKey: key, Expire: certinfo.NotAfter}, nil
+	return &Cert{Cert: cert, Key: key, Expire: certinfo.NotAfter}, nil
 }
 
 func CertUpdate() error {
@@ -66,8 +76,9 @@ func CertMake(domain []string, email string) (*Cert, error) {
 	ret := cmd.RunWithStdin(input)
 
 	if ret == 0 {
-		return NewCert(domain[0], cmd.Stdout())
+		return NewCert(domain[0])
 	}
+
 	return nil, fmt.Errorf("certbot make code %d, stdout:%s, stderr:%s",
 		ret, cmd.Stdout(), cmd.Stderr())
 }

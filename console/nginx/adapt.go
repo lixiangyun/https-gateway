@@ -3,10 +3,13 @@ package nginx
 import (
 	"fmt"
 	"github.com/astaxie/beego/logs"
+	"github.com/lixiangyun/https-gateway/console/data"
 	"github.com/lixiangyun/https-gateway/proc"
+	"github.com/lixiangyun/https-gateway/util"
 	"os"
 	"path/filepath"
 	"text/template"
+	"time"
 )
 
 type ProxyItem struct {
@@ -19,15 +22,17 @@ type ProxyItem struct {
 }
 
 type Config struct {
+	PIDFile  string
 	Redirect bool
 	LogDir   string
 	Proxy  []ProxyItem
 }
 
-const NGINX_CONFIG_TEMPLATE = "/home/binary/nginx.conf.template"
-const NGINX_CONFIG_PATH = "/home/binary/nginx.conf"
-const NGINX_CONFIG_TMP_PATH = "/home/binary/nginx.conf.tmp"
-const NGINX_PID = "/home/nginx.pid"
+var NGINX_HOME string
+var NGINX_CONFIG_TEMPLATE string
+var NGINX_CONFIG_PATH string
+var NGINX_CONFIG_TMP_PATH string
+var NGINX_PID string
 
 func NginxConfig(ctx *Config) error {
 	_, err := os.Stat(NGINX_CONFIG_TMP_PATH)
@@ -128,4 +133,83 @@ func NginxStart() error {
 	}
 
 	return fmt.Errorf("nginx start fail, stdout:%s, stderr:%s", cmd.Stdout(), cmd.Stderr())
+}
+
+
+func SyncProxyToNginx() error {
+	proxy, err := data.ProxyQueryAll()
+	if err != nil {
+		return err
+	}
+
+	var items []ProxyItem
+	for _,v := range proxy {
+
+		cert, err := data.CertQuery(v.Cert)
+		if err != nil {
+			return err
+		}
+
+		certFile := fmt.Sprintf("%s/%s/cert.pem", NGINX_HOME, v.Name )
+		keyFile := fmt.Sprintf("%s/%s/key.pem", NGINX_HOME, v.Name )
+
+		util.SaveToFile(certFile, []byte(cert.Cert))
+		util.SaveToFile(keyFile, []byte(cert.Key))
+
+		logDirs := fmt.Sprintf("%s/%s", NGINX_HOME, v.Name)
+		os.MkdirAll(logDirs, 0644)
+
+		items = append(items, ProxyItem{
+			Https: v.HttpsPort,
+			Name: v.Name,
+			CertFile: certFile,
+			CertKey: keyFile,
+			Backend: v.Backend,
+			LogDir: logDirs,
+		})
+	}
+
+	return NginxConfig(&Config{
+		Redirect: true,
+		LogDir: NGINX_HOME,
+		Proxy: items,
+	})
+}
+
+func NginxSync()  {
+	err := SyncProxyToNginx()
+	if err != nil {
+		logs.Warn("nginx sync fail", err.Error())
+	}else {
+		logs.Info("nginx sync success")
+	}
+}
+
+func NginxInit(home string) error {
+	err := os.MkdirAll(home, 0644)
+	if err != nil {
+		return err
+	}
+
+	NGINX_HOME = home
+	NGINX_CONFIG_TEMPLATE = NGINX_HOME + "/nginx.conf.template"
+	NGINX_CONFIG_PATH = NGINX_HOME + "/nginx.conf"
+	NGINX_CONFIG_TMP_PATH = NGINX_HOME + "/nginx.conf.test"
+	NGINX_PID = NGINX_HOME + "/nginx.pid"
+
+	err = util.CopyToFile(NGINX_CONFIG_TEMPLATE, "./nginx.conf.template")
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for  {
+			if !NginxRunning() {
+				NginxSync()
+			}
+			time.Sleep(time.Minute)
+		}
+	}()
+
+	return nil
 }

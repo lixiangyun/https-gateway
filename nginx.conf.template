@@ -1,6 +1,6 @@
 user www-data;
 worker_processes auto;
-pid /home/nginx.pid;
+pid {{.PIDFile}};
 include /etc/nginx/modules-enabled/*.conf;
 
 events {

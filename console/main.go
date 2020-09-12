@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/lixiangyun/https-gateway/console/controller"
 	"github.com/lixiangyun/https-gateway/console/data"
+	"github.com/lixiangyun/https-gateway/console/nginx"
 	"github.com/lixiangyun/https-gateway/util"
 )
 
@@ -16,13 +17,16 @@ var (
 	LogDir      string
 	HealthCheck string
 	Etcds       string
+	HOME        string
 
 	Address string
 	Port    int
 )
 
 func init()  {
-	flag.StringVar(&LogDir, "log", "/var/log/https-gateway/", "log dir")
+	flag.StringVar(&LogDir, "log", "/var/log/", "log dir")
+	flag.StringVar(&HOME, "home", "/var/run/", "home dir")
+
 	flag.StringVar(&HealthCheck, "healthcheck", "127.0.0.1:18001", "healthcheck for docker")
 
 	flag.IntVar(&Port, "port", 18000, "port for listen")
@@ -70,7 +74,11 @@ func main()  {
 	util.HealthCheckInit(HealthCheck)
 	data.DataInit([]string{Etcds})
 
-	controller.NginxInit()
+	err = nginx.NginxInit(HOME)
+	if err != nil {
+		logs.Error("nginx init fail, %s", err.Error())
+		return
+	}
 
 	BeegoConfig()
 

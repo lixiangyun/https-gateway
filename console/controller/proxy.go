@@ -10,8 +10,6 @@ import (
 	"github.com/lixiangyun/https-gateway/util"
 	"github.com/lixiangyun/https-gateway/weberr"
 	"net/url"
-	"os"
-	"time"
 )
 
 type ProxyInfo struct {
@@ -166,7 +164,7 @@ func ProxyInfoControllerAdd(ctx *context.Context)  {
 
 	data.CertUsed(req.Domain,1)
 
-	NginxSync()
+	nginx.NginxSync()
 
 	logs.Info("add proxy success!")
 }
@@ -206,7 +204,7 @@ func ProxyInfoControllerDelete(ctx *context.Context)  {
 
 	data.CertUsed(info.Cert,-1)
 
-	NginxSync()
+	nginx.NginxSync()
 
 	logs.Info("delete proxy success!")
 }
@@ -217,7 +215,7 @@ func ProxyInfoControllerUpdate(ctx *context.Context)  {
 		ctx.WriteString(weberr.WebErr(werr))
 	}()
 
-	err := SyncProxyToNginx()
+	err := nginx.SyncProxyToNginx()
 	if err != nil {
 		logs.Error("nginx sync fail", err.Error())
 		werr = weberr.WebErrMake(weberr.WEB_ERR_UP_PROXY)
@@ -226,58 +224,4 @@ func ProxyInfoControllerUpdate(ctx *context.Context)  {
 	}
 
 	logs.Info("reset proxy success!")
-}
-
-func SyncProxyToNginx() error {
-	proxy, err := data.ProxyQueryAll()
-	if err != nil {
-		return err
-	}
-
-	var items []nginx.ProxyItem
-	for _,v := range proxy {
-		cert, err := data.CertQuery(v.Cert)
-		if err != nil {
-			return err
-		}
-
-		logDirs := fmt.Sprintf("/home/log/nginx/%s", v.Name)
-		items = append(items, nginx.ProxyItem{
-			Https: v.HttpsPort,
-			Name: v.Name,
-			CertFile: cert.CertFile,
-			CertKey: cert.CertKey,
-			Backend: v.Backend,
-			LogDir: logDirs,
-		})
-
-		os.MkdirAll(logDirs, 0644)
-	}
-
-	pubDir := fmt.Sprintf("/home/log/nginx")
-	os.MkdirAll(pubDir, 0644)
-
-	return nginx.NginxConfig(&nginx.Config{
-		Redirect: true,
-		LogDir: pubDir,
-		Proxy: items,
-	})
-}
-
-func NginxSync()  {
-	err := SyncProxyToNginx()
-	if err != nil {
-		logs.Warn("nginx sync fail", err.Error())
-	}
-}
-
-func NginxInit()  {
-	go func() {
-		for  {
-			if !nginx.NginxRunning() {
-				NginxSync()
-			}
-			time.Sleep(time.Minute)
-		}
-	}()
 }

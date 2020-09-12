@@ -32,6 +32,11 @@ type CertInfoRsponse struct {
 }
 
 func CertInfo2Console(info data.CertInfo) CertInfo {
+	var detail string
+	if info.Cert != "" && info.Key != "" {
+		detail = fmt.Sprintf("cert: %s", info.Cert)
+	}
+
 	return CertInfo{
 		Date: info.Date.Format("2006-01-02"),
 		Expire: info.Expire.Format("2006-01-02"),
@@ -39,8 +44,7 @@ func CertInfo2Console(info data.CertInfo) CertInfo {
 		Domains: util.StringList(info.Domain),
 		Email: info.Email,
 		Status: util.Status(info.Status),
-		Detail: fmt.Sprintf("Cert: %s, Key:%s",
-			info.CertFile, info.CertKey),
+		Detail: detail,
 		Make: info.MakeInfo,
 	}
 }
@@ -153,30 +157,44 @@ func makeCert(domain string) {
 	if err != nil {
 		certinfo.MakeInfo = err.Error()
 	} else {
-		certinfo.CertKey = cert.CertKey
-		certinfo.CertFile = cert.CertFile
-		certinfo.Expire = cert.Expire
+		certinfo.Key      = string(cert.Key)
+		certinfo.Cert     = string(cert.Cert)
+		certinfo.Expire   = cert.Expire
 		certinfo.MakeInfo = "success"
 	}
 
 	data.CertUpdate(certinfo)
 }
 
-func updateCert(domain string) {
-	certinfo, err := data.CertQuery(domain)
+func updateCert() {
+	certs, err := data.CertQueryAll()
 	if err != nil {
-		logs.Warn("cert query fail", err.Error())
+		logs.Warn("cert query all fail", err.Error())
 		return
 	}
 
 	err = certbot.CertUpdate()
 	if err != nil {
-		certinfo.MakeInfo = err.Error()
-	} else {
-		certinfo.MakeInfo = "success"
+		logs.Error("cert update fail", err.Error())
+		return
 	}
 
-	data.CertUpdate(certinfo)
+	for _, v := range certs {
+		info, err := certbot.NewCert(v.Domain[0])
+		if err != nil {
+			logs.Error("load new cert fail", err.Error())
+			continue
+		}
+
+		v.Key      = string(info.Key)
+		v.Cert     = string(info.Cert)
+		v.Expire   = info.Expire
+		v.MakeInfo = "success"
+
+		data.CertUpdate(&v)
+	}
+
+	nginx.NginxSync()
 }
 
 type CertDelRequest struct {
@@ -223,41 +241,14 @@ func CertInfoControllerDelete(ctx *context.Context)  {
 }
 
 func CertInfoControllerUpdate(ctx *context.Context)  {
-	var req CertDelRequest
-
 	werr := weberr.WEB_ERR_OK
 	defer func() {
 		ctx.WriteString(weberr.WebErr(werr))
 	}()
 
-	body := ctx.Input.RequestBody
-	err := json.Unmarshal(body, &req)
-	if err != nil {
-		logs.Error("json unmarshal fail", err.Error())
-		werr = weberr.WebErrMake(weberr.WEB_ERR_JSON_UCODER)
-		return
-	}
+	updateCert()
 
-	cert, err := data.CertQuery(req.Domain)
-	if err != nil {
-		logs.Error("cert %s not exist, %s", req.Domain, err.Error())
-		werr = weberr.WebErrMake(weberr.WEB_ERR_NOT_CERT)
-		return
-	}
-
-	cert.MakeInfo = "making"
-	cert.Expire = time.Now().AddDate(0,3,0)
-
-	err = data.CertUpdate(cert)
-	if err != nil {
-		logs.Error("cert %s not exist, %s", req.Domain, err.Error())
-		werr = weberr.WebErrMake(weberr.WEB_ERR_NOT_CERT)
-		return
-	}
-
-	go updateCert(req.Domain)
-
-	logs.Info("update cert %s success!", req.Domain)
+	logs.Info("update cert success!")
 }
 
 type DomainInfoRsponse struct {

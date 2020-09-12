@@ -16,8 +16,8 @@ type CertInfo struct {
 	Expire     time.Time
 	Date       time.Time
 	Auto       bool
-	CertKey    string
-	CertFile   string
+	Key        string
+	Cert       string
 	MakeInfo   string
 }
 
