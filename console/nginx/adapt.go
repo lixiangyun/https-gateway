@@ -94,12 +94,16 @@ func nginxTest(name string) error {
 }
 
 func NginxStop() error {
+	cfg, err := filepath.Abs(NGINX_CONFIG_PATH)
+	if err != nil {
+		return err
+	}
 	for i := 0 ; i < 10; i++ {
 		if !NginxRunning() {
 			logs.Info("nginx been stop")
 			return nil
 		}
-		cmd := proc.NewCmd("nginx", "-s", "stop")
+		cmd := proc.NewCmd("nginx", "-s", "stop", "-c", cfg)
 		retcode := cmd.Run()
 		if retcode == 0 {
 			logs.Info("nginx stop success")

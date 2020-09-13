@@ -15,5 +15,6 @@ func DataInit(endpoints []string) error {
 		return err
 	}
 	KvAPI = baseAPI
-	return nil
+
+	return userInit()
 }

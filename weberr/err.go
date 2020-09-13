@@ -48,6 +48,11 @@ var (
 	WEB_ERR_DEL_PROXY     = PublicRsponse{Code: 1022, Message: "delete proxy fail"}
 	WEB_ERR_UP_PROXY      = PublicRsponse{Code: 1023, Message: "update proxy fail"}
 	WEB_ERR_NG_PROXY      = PublicRsponse{Code: 1024, Message: "sync proxy to nginx fail"}
+
+	WEB_ERR_LOGIN_FAIL    = PublicRsponse{Code: 2101, Message: "user or password invaild"}
+	WEB_ERR_NO_USER       = PublicRsponse{Code: 2102, Message: "no user found"}
+	WEB_ERR_NO_LOGIN      = PublicRsponse{Code: 2103, Message: "no login"}
+	WEB_ERR_USER_UP_FAIL  = PublicRsponse{Code: 2104, Message: "update user and password fail"}
 )
 
 func WebOK() string {

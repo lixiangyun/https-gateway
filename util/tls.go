@@ -49,13 +49,13 @@ func addressIP(add string) string {
 	return add
 }
 
-func newTempCert(address []string) (tls.Certificate, error) {
+func NewSelfCert(address []string) ([]byte, []byte) {
 	max := new(big.Int).Lsh(big.NewInt(1), 128)   //把 1 左移 128 位，返回给 big.Int
 	serialNumber, _ := rand.Int(rand.Reader, max) //返回在 [0, max) 区间均匀随机分布的一个随机值
 	subject := pkix.Name{                         //Name代表一个X.509识别名。只包含识别名的公共属性，额外的属性被忽略。
-		Organization:       []string{"autoproxy co."},
-		OrganizationalUnit: []string{"autoproxy"},
-		CommonName:         "Autoproxy Programming",
+		Organization:       []string{"easymesh so."},
+		OrganizationalUnit: []string{"easymesh"},
+		CommonName:         "Easymesh Programming Studio",
 	}
 
 	ipAddress := make([]net.IP, 0)
@@ -75,7 +75,7 @@ func newTempCert(address []string) (tls.Certificate, error) {
 		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},               // 密钥扩展用途的序列
 		IPAddresses:  ipAddress,
 	}
-	pk, _ := rsa.GenerateKey(rand.Reader, 1024) //生成一对具有指定字位数的RSA密钥
+	pk, _ := rsa.GenerateKey(rand.Reader, 2048) //生成一对具有指定字位数的RSA密钥
 
 	//CreateCertificate基于模板创建一个新的证书
 	//第二个第三个参数相同，则证书是自签名的
@@ -88,6 +88,10 @@ func newTempCert(address []string) (tls.Certificate, error) {
 	keyOut := bytes.NewBuffer(make([]byte, 0))
 	pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(pk)})
 
-	return tls.X509KeyPair(certOut.Bytes(), keyOut.Bytes())
+	return certOut.Bytes(), keyOut.Bytes()
+}
+
+func newTempCert(address []string) (tls.Certificate, error) {
+	return tls.X509KeyPair(NewSelfCert(address))
 }
 

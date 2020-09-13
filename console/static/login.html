@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>登陆页面</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+</head>
+<body>
+    <div class="layui-header">
+        <div class="layui-container">
+            <ul class="layui-nav">
+                <li class="layui-nav-item">HTTPS Gateway</li>
+                <li class="layui-nav-item layui-layout-right" style="font-size: 25px;margin-right: 30px"> <a href="javascript:;">帮助</a>
+                    <dl class="layui-nav-child">
+                        <dd lay-unselect> <a href="https://www.easymesh.info/" target="_blank">官网</a><hr></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="layui-container " style="margin-top: 40px">
+        <div class="layui-form layui-form-pane" style="text-align: center">
+            <form method="post" style="margin:0 auto; width: 300px;height: 400px">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px">账户</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="username" required lay-verify="required" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 100px">密码</label>
+                    <div class="layui-input-inline">
+                        <input type="password" name="password" required lay-verify="required" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <button class="layui-btn" lay-filter="login" lay-submit style="width: 100px">登录</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="layui-footer" style="text-align: center">
+        <p>© 2020 <a href="https://www.easymesh.info/" target="_blank">easymesh.info</a>  易云尚云版权所有</p>
+    </div>
+
+    <script src="./layui/layui.all.js"></script>
+    <script src="./layui/public.js"></script>
+
+    <script>
+        function submit() {
+            var form = layui.form;
+            form.on('submit(login)', function(data){
+                publicPostJson("./login", JSON.stringify(data.field), function (rsp) {
+                    if (rsp.code == 0) {
+                        layer.msg("登陆成功");
+                        setTimeout(function()
+                        {
+                            window.location.replace("/index.html");
+                        }, 500);
+                    }else {
+                        layer.msg("用户名或者密码错误");
+                    }
+                })
+                return false;
+            });
+        }
+        submit();
+    </script>
+</body>
+</html>
