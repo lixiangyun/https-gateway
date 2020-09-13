@@ -128,6 +128,9 @@ func parseLine(line string) *Request {
 	line = line[idx2:]
 
 	list := Split(body)
+	if len(list) < 3 {
+		return &req
+	}
 	req.Method = list[0]
 	req.URL = list[1]
 
