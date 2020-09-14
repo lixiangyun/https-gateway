@@ -19,6 +19,8 @@ type Console struct {
 	Proxys    int    `json:"proxy_number"`
 	Cpu       int    `json:"node_cpu"`
 	Memory    int    `json:"node_memory"`
+	
+	Version   string `json:"version"`
 }
 
 var sysinfo *os.SysInfo
@@ -100,7 +102,9 @@ func ConsoleInfoControllerGet(ctx *context.Context)  {
 	rsp.TodaySize = util.ByteView(FlowTodaySize)
 	rsp.TotalCnt = RequestTotalCnt
 	rsp.TodayCnt = RequestTodayCnt
+	rsp.Version = util.VersionGet()
 
 	result, _ := json.Marshal(&rsp)
 	ctx.WriteString(string(result))
 }
+
