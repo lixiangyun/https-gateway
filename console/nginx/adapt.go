@@ -251,3 +251,16 @@ func AccessAllGet() []*Access {
 	}
 	return output
 }
+
+func AccessCntGet() int {
+	proxy, err := data.ProxyQueryAll()
+	if err != nil {
+		return 0
+	}
+	var output int
+	for _, v := range proxy {
+		access := ParseAccessFileCnt(fmt.Sprintf("%s/%s/access.log", NGINX_HOME, v.Name))
+		output += access
+	}
+	return output
+}

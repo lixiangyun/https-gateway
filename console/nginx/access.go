@@ -158,6 +158,7 @@ func ParseAccessFile(file string) *Access {
 	fileHandler, err := os.Open(file)
 	if err != nil {
 		logs.Error("parse access fail", err.Error())
+		return nil
 	}
 	defer fileHandler.Close()
 	var access Access
@@ -173,4 +174,24 @@ func ParseAccessFile(file string) *Access {
 		}
 	}
 	return &access
+}
+
+func ParseAccessFileCnt(file string) int {
+	fileHandler, err := os.Open(file)
+	if err != nil {
+		logs.Error("parse access fail", err.Error())
+		return 0
+	}
+	defer fileHandler.Close()
+
+	reader := bufio.NewReader(fileHandler)
+	var output int
+	for  {
+		_, _, err := reader.ReadLine()
+		if err != nil {
+			break
+		}
+		output++
+	}
+	return output
 }

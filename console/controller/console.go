@@ -11,8 +11,8 @@ import (
 )
 
 type Console struct {
-	TodayCnt  int `json:"today_request"`
-	TotalCnt  int `json:"total_request"`
+	TodayCnt  int    `json:"today_request"`
+	TotalCnt  int    `json:"total_request"`
 	TodaySize string `json:"today_flow"`
 	TotalSize string `json:"total_flow"`
 	Certs     int    `json:"cert_number"`
@@ -23,31 +23,32 @@ type Console struct {
 
 var sysinfo *os.SysInfo
 
-var FlowTotalSize int64
 var FlowTodaySize int64
+var FlowTotalSize int64
 
 var RequestTodayCnt  int
 var RequestTotalCnt  int
 
-func GetNetwork(network []os.Network) int64 {
-	var size int64
+func GetNetwork(network []os.Network) (int64,int64) {
+	var down, up int64
 	for _,v := range network {
-		size += v.Downflow + v.Upflow
+		down += v.Downflow
+		up += v.Upflow
 	}
-	return size
+	return up, down
 }
 
 var lastCnt int
 func GetRequest() int {
-	access := nginx.AccessAllGet()
-	var totalcnt int
-	for _,v := range access {
-		totalcnt += len(v.List)
-	}
+	totalcnt := nginx.AccessCntGet()
+	var retcnt int
 	if lastCnt > totalcnt {
-		lastCnt = 0
+		retcnt = totalcnt
+	} else {
+		retcnt = totalcnt - lastCnt
 	}
-	return totalcnt - lastCnt
+	lastCnt = totalcnt
+	return retcnt
 }
 
 func init()  {
@@ -65,13 +66,22 @@ func init()  {
 
 			sysinfo = os.SysInfoGet()
 
-			size := GetNetwork(sysinfo.Net)
-			FlowTotalSize += size
-			FlowTodaySize += size
+			up, down := GetNetwork(sysinfo.Net)
+
+			sys := data.SysStatGet()
+			sys.DownFlowSize += down
+			sys.UpFlowSize += up
+
+			FlowTotalSize = sys.DownFlowSize + sys.UpFlowSize
+			FlowTodaySize += up + down
 
 			cnt := GetRequest()
+			sys.ReqeustCnt += cnt
+
 			RequestTodayCnt += cnt
-			RequestTotalCnt += cnt
+			RequestTotalCnt = sys.ReqeustCnt
+
+			data.SysStatUpdate(sys)
 		}
 	}()
 }
